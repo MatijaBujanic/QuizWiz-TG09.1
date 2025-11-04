@@ -1,7 +1,7 @@
 import "./App.css";
 
 import "bootstrap/dist/css/bootstrap.min.css";
-import Navbar from "./components/NavBar";
+import Navbar from "./components/Navbar";
 import HeroSection from "./components/HeroSection";
 import FeatureCard from "./components/FeatureCard";
 import Footer from "./components/Footer";
