@@ -1,36 +1,40 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 
 interface AuthContextType {
   isAuthenticated: boolean;
-  login: (status: string) => void;
+  token: string | null;
+  login: (token: string) => void;
   logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [token, setToken] = useState<string | null>(() => localStorage.getItem('jwt_token'));
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(!!token);
 
-  const login = () => {
-    setIsAuthenticated(true);
+  useEffect(() => {
+    if (token) {
+      localStorage.setItem('jwt_token', token);
+      setIsAuthenticated(true);
+    } else {
+      localStorage.removeItem('jwt_token');
+      setIsAuthenticated(false);
+    }
+  }, [token]);
+
+  const login = (newToken: string) => {
+    setToken(newToken);
   };
 
-  const logout = async () => {
-    try {
-      // Call backend logout endpoint
-      await fetch('http://localhost:8080/logout', {
-        method: 'POST',
-        credentials: 'include'
-      });
-    } finally {
-      setIsAuthenticated(false);
-      window.location.href = '/';
-    }
+  const logout = () => {
+    setToken(null);
+    window.location.href = '/';
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, token, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

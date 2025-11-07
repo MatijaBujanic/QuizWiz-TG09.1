@@ -5,7 +5,11 @@ export default function Login() {
   const error = searchParams.get('error');
 
   const handleGoogleLogin = () => {
-    window.location.href = 'http://localhost:5174/oauth2/authorization/google';
+    window.location.href = 'http://localhost:8080/oauth2/authorization/google';
+  };
+
+  const handleLoginGithub = () => {
+    window.location.href = 'http://localhost:8080/oauth2/authorization/github';
   };
 
   return (
@@ -27,6 +31,12 @@ export default function Login() {
                 >
                   <i className="bi bi-google me-2"></i>
                   Prijavi se pomoću Google računa
+                </button>
+                <button
+                    onClick={() => handleLoginGithub()}
+                    className="w-full py-2 bg-gray-800 hover:bg-gray-900 text-white font-medium rounded-lg"
+                  >
+                  Prijavi se pomoću Github-a
                 </button>
               </div>
             </div>

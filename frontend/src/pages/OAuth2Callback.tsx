@@ -1,31 +1,24 @@
 import { useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 export default function OAuth2Callback() {
   const navigate = useNavigate();
-  const location = useLocation();
+  const [searchParams] = useSearchParams();
   const { login } = useAuth();
 
   useEffect(() => {
-    // Check if there's an error
-    if (location.search.includes('error')) {
-      navigate('/login');
+    const token = searchParams.get('token');
+    const error = searchParams.get('error');
+
+    if (error || !token) {
+      navigate('/login?error=true');
       return;
     }
 
-    // After successful OAuth2 login, we'll get a session cookie
-    // We can consider the user logged in
-    login('authenticated');
+    login(token);       
     navigate('/dashboard');
-  }, [location, login, navigate]);
+  }, [searchParams, login, navigate]);
 
-  return (
-    <div className="container text-center mt-5">
-      <div className="spinner-border" role="status">
-        <span className="visually-hidden">Loading...</span>
-      </div>
-      <p className="mt-3">Prijava u tijeku...</p>
-    </div>
-  );
+  return <div>Prijava u tijeku...</div>;
 }

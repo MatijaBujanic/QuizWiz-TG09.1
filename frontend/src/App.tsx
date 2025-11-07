@@ -1,4 +1,4 @@
-import "./App.css";
+/*import "./App.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
@@ -55,6 +55,38 @@ function App() {
         </div>
       </AuthProvider>
     </Router>
+  );
+}
+
+export default App;
+*/
+
+
+
+import "./App.css";
+
+import "bootstrap/dist/css/bootstrap.min.css";
+import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
+import HomePage from "./pages/LandingPage";
+import LoginPage from "./pages/LoginPage";
+import LandingPage from "./pages/LandingPage";
+import OAuth2Callback from "./pages/OAuth2Callback";
+
+import { Routes, Route } from "react-router-dom";
+
+function App() {
+  return (
+    <>
+      <Navbar />
+      <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/oauth2/success" element={<OAuth2Callback />} />
+            </Routes>
+      
+      <Footer />
+    </>
   );
 }
 
