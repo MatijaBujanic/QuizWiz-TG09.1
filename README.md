@@ -1,7 +1,7 @@
 # Programsko inženjerstvo
 
 # Opis projekta
-Ovaj projekt je reultat timskog rada u sklopu projeknog zadatka kolegija [Programsko inženjerstvo](https://www.fer.unizg.hr/predmet/proinz) na Fakultetu elektrotehnike i računarstva Sveučilišta u Zagrebu. 
+Ovaj projekt je rezultat timskog rada u sklopu projektnog zadatka kolegija [Programsko inženjerstvo](https://www.fer.unizg.hr/predmet/proinz) na Fakultetu elektrotehnike i računarstva Sveučilišta u Zagrebu. 
 
 Pub kvizovi su popularan oblik društvene zabave, ali njihova organizacija često ovisi o neformalnim kanalima kao što su društvene mreže, poruke i usmeni dogovori. Ovakav pristup otežava praćenje prijava, ograničavanje broja timova i komunikaciju između organizatora i sudionika.
 
@@ -41,32 +41,42 @@ PUBquizAPP rješava ovaj problem digitalizacijom cijelog procesa - od objave kvi
 
 # Tehnologije
 
-# Instalcija
+•	Frontend: React.js, HTML, CSS
+
+•	Backend: Spring Boot
+
+•	Baze podataka: PostgreSQL
+
+•	Mapa: Google Maps
+
+•	Autentifikacija: Oauth 2.0
+
+# Instalacija
 
 # Članovi tima 
-Matija Bujanić - Voditelj (Baze podataka)  
-Mihael Vranić (Baze podataka)  
-Paula Vidak (Frontend)  
-Jona Matsumoto Šegota (Frontend)  
-Dario Herceg (Backend)  
-Filip Gojak (Backend)  
-Ana Kasanić (Dokumentacija)  
+Matija Bujanić (matija.bujanic@fer.unizg.hr) - voditelj, baze podataka  
+Mihael Vranić (mihael.vranic@fer.unizg.hr) - baze podataka  
+Paula Vidak (paula.vidak@fer.unizg.hr) - frontend  
+Jona Matsumoto Šegota (jona.matsumoto-segota@fer.unizg.hr) - frontend  
+Dario Herceg (dario.herceg@fer.unizg.hr) - backend  
+Filip Gojak (filip.gojak@fer.unizg.hr) - backend  
+Ana Kasanić (ana.kasanic@fer.unizg.hr) - dokumentacija  
 
 # Kontribucije
->Pravila ovise o organizaciji tima i su često izdvojena u CONTRIBUTING.md
+>Pravila se nalaze u posebnom dokumentu CONTRIBUTING.md
 
 
 
 # 📝 Kodeks ponašanja [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md)
 Kao studenti sigurno ste upoznati s minimumom prihvatljivog ponašanja definiran u [KODEKS PONAŠANJA STUDENATA FAKULTETA ELEKTROTEHNIKE I RAČUNARSTVA SVEUČILIŠTA U ZAGREBU](https://www.fer.hr/_download/repository/Kodeks_ponasanja_studenata_FER-a_procisceni_tekst_2016%5B1%5D.pdf), te dodatnim naputcima za timski rad na predmetu [Programsko inženjerstvo](https://wwww.fer.hr).
-Očekujemo da ćete poštovati [etički kodeks IEEE-a](https://www.ieee.org/about/corporate/governance/p7-8.html) koji ima važnu obrazovnu funkciju sa svrhom postavljanja najviših standarda integriteta, odgovornog ponašanja i etičkog ponašanja u profesionalnim aktivnosti. Time profesionalna zajednica programskih inženjera definira opća načela koja definiranju  moralni karakter, donošenje važnih poslovnih odluka i uspostavljanje jasnih moralnih očekivanja za sve pripadnike zajenice.
+Očekujemo da ćete poštovati [etički kodeks IEEE-a](https://www.ieee.org/about/corporate/governance/p7-8.html) koji ima važnu obrazovnu funkciju sa svrhom postavljanja najviših standarda integriteta, odgovornog ponašanja i etičkog ponašanja u profesionalnim aktivnosti. Time profesionalna zajednica programskih inženjera definira opća načela koja definiranju  moralni karakter, donošenje važnih poslovnih odluka i uspostavljanje jasnih moralnih očekivanja za sve pripadnike zajednice.
 
-Kodeks ponašanja skup je provedivih pravila koja služe za jasnu komunikaciju očekivanja i zahtjeva za rad zajednice/tima. Njime se jasno definiraju obaveze, prava, neprihvatljiva ponašanja te  odgovarajuće posljedice (za razliku od etičkog kodeksa). U ovom repozitoriju dan je jedan od široko prihvačenih kodeks ponašanja za rad u zajednici otvorenog koda.
+Kodeks ponašanja skup je provedivih pravila koja služe za jasnu komunikaciju očekivanja i zahtjeva za rad zajednice/tima. Njime se jasno definiraju obaveze, prava, neprihvatljiva ponašanja te  odgovarajuće posljedice (za razliku od etičkog kodeksa). U ovom repozitoriju dan je jedan od široko prihvaćenih kodeks ponašanja za rad u zajednici otvorenog koda.
 >### Poboljšajte funkcioniranje tima:
 >* definirajte načina na koji će rad biti podijeljen među članovima grupe
 >* dogovorite kako će grupa međusobno komunicirati.
->* ne gubite vrijeme na dogovore na koji će grupa rješavati sporove primjenite standarde!
->* implicitno podrazmijevamo da će svi članovi grupe slijediti kodeks ponašanja.
+>* ne gubite vrijeme na dogovore na koji će grupa rješavati sporove primijenite standarde!
+>* implicitno podrazumijevamo da će svi članovi grupe slijediti kodeks ponašanja.
  
 >###  Prijava problema
 >Najgore što se može dogoditi je da netko šuti kad postoje problemi. Postoji nekoliko stvari koje možete učiniti kako biste najbolje riješili sukobe i probleme:
@@ -75,7 +85,7 @@ Kodeks ponašanja skup je provedivih pravila koja služe za jasnu komunikaciju o
 >* Ako se osjećate ugodno neposredno razgovarajte o problemu. Manje incidente trebalo bi rješavati izravno. Odvojite vrijeme i privatno razgovarajte s pogođenim članom tima te vjerujte u iskrenost.
 
 # 📝 Licenca
-Važeča (1)
+Važeća (1)
 [![CC BY-NC-SA 4.0][cc-by-nc-sa-shield]][cc-by-nc-sa]
 
 Ovaj repozitorij sadrži otvoreni obrazovni sadržaji (eng. Open Educational Resources)  i licenciran je prema pravilima Creative Commons licencije koja omogućava da preuzmete djelo, podijelite ga s drugima uz 
@@ -84,7 +94,7 @@ uvjet da navođenja autora, ne upotrebljavate ga u komercijalne svrhe te dijelit
 > ### Napomena:
 >
 > Svi paketi distribuiraju se pod vlastitim licencama.
-> Svi upotrijebleni materijali  (slike, modeli, animacije, ...) distribuiraju se pod vlastitim licencama.
+> Svi upotrijebljeni materijali  (slike, modeli, animacije, ...) distribuiraju se pod vlastitim licencama.
 
 [![CC BY-NC-SA 4.0][cc-by-nc-sa-image]][cc-by-nc-sa]
 
