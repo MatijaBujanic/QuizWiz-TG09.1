@@ -1,17 +1,19 @@
 import "./App.css";
-
 import "bootstrap/dist/css/bootstrap.min.css";
+import "bootstrap-icons/font/bootstrap-icons.css";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext";
 import Navbar from "./components/Navbar";
 import HeroSection from "./components/HeroSection";
 import FeatureCard from "./components/FeatureCard";
 import Footer from "./components/Footer";
+import Login from "./pages/Login";
+import OAuth2Callback from "./pages/OAuth2Callback";
 
-function App() {
+function HomePage() {
   return (
     <>
-      <Navbar />
       <HeroSection />
-
       <div className="container mt-5 mb-5">
         <h2 className="text-center mb-4">Što nudi QuizWiz?</h2>
         <div className="row">
@@ -32,9 +34,27 @@ function App() {
           />
         </div>
       </div>
-
-      <Footer />
     </>
+  );
+}
+
+function App() {
+  return (
+    <Router>
+      <AuthProvider>
+        <div className="d-flex flex-column min-vh-100">
+          <Navbar />
+          <main className="flex-grow-1">
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/oauth2/success" element={<OAuth2Callback />} />
+            </Routes>
+          </main>
+          <Footer />
+        </div>
+      </AuthProvider>
+    </Router>
   );
 }
 
