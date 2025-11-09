@@ -1,15 +1,15 @@
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams } from "react-router-dom";
 
 export default function Login() {
   const [searchParams] = useSearchParams();
-  const error = searchParams.get('error');
+  const error = searchParams.get("error");
 
   const handleGoogleLogin = () => {
-    window.location.href = 'http://localhost:8080/oauth2/authorization/google';
+    window.location.href = "http://localhost:8080/oauth2/authorization/google";
   };
 
   const handleLoginGithub = () => {
-    window.location.href = 'http://localhost:8080/oauth2/authorization/github';
+    window.location.href = "http://localhost:8080/oauth2/authorization/github";
   };
 
   return (
@@ -25,7 +25,7 @@ export default function Login() {
                 </div>
               )}
               <div className="d-grid gap-2">
-                <button 
+                <button
                   className="btn btn-outline-dark"
                   onClick={handleGoogleLogin}
                 >
@@ -33,9 +33,9 @@ export default function Login() {
                   Prijavi se pomoću Google računa
                 </button>
                 <button
-                    onClick={() => handleLoginGithub()}
-                    className="w-full py-2 bg-gray-800 hover:bg-gray-900 text-white font-medium rounded-lg"
-                  >
+                  onClick={() => handleLoginGithub()}
+                  className="w-full py-2 bg-gray-800 hover:bg-gray-900 text-white font-medium rounded-lg"
+                >
                   Prijavi se pomoću Github-a
                 </button>
               </div>

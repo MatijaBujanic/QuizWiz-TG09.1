@@ -1,12 +1,10 @@
-import React from "react";
-
 interface FeatureCardProps {
+  icon: string;
   title: string;
   text: string;
-  icon: string;
 }
 
-const FeatureCard: React.FC<FeatureCardProps> = ({ title, text, icon }) => {
+const FeatureCard = ({ icon, title, text }: FeatureCardProps) => {
   return (
     <div className="col-md-4 mb-4">
       <div className="card h-100 shadow-sm border-0 text-center">

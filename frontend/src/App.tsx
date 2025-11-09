@@ -61,16 +61,11 @@ function App() {
 export default App;
 */
 
-
-
-import "./App.css";
-
-import "bootstrap/dist/css/bootstrap.min.css";
-import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
-import HomePage from "./pages/LandingPage";
-import LoginPage from "./pages/LoginPage";
+import HomePage from "./pages/HomePage";
 import LandingPage from "./pages/LandingPage";
+import LoginPage from "./pages/LoginPage";
+import Navbar from "./components/Navbar";
 import OAuth2Callback from "./pages/OAuth2Callback";
 
 import { Routes, Route } from "react-router-dom";
@@ -80,11 +75,11 @@ function App() {
     <>
       <Navbar />
       <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/oauth2/success" element={<OAuth2Callback />} />
-            </Routes>
-      
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/oauth2/success" element={<OAuth2Callback />} />
+        <Route path="/home" element={<HomePage />}></Route>
+      </Routes>
       <Footer />
     </>
   );

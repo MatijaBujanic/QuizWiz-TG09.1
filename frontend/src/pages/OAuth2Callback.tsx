@@ -1,6 +1,6 @@
-import { useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 export default function OAuth2Callback() {
   const navigate = useNavigate();
@@ -8,16 +8,16 @@ export default function OAuth2Callback() {
   const { login } = useAuth();
 
   useEffect(() => {
-    const token = searchParams.get('token');
-    const error = searchParams.get('error');
+    const token = searchParams.get("token");
+    const error = searchParams.get("error");
 
     if (error || !token) {
-      navigate('/login?error=true');
+      navigate("/login?error=true");
       return;
     }
 
-    login(token);       
-    navigate('/dashboard');
+    login(token);
+    navigate("/home");
   }, [searchParams, login, navigate]);
 
   return <div>Prijava u tijeku...</div>;

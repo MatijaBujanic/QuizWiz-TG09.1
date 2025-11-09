@@ -1,13 +1,13 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
-export default function Navbar() {
+function Navbar() {
   const { isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = () => {
     logout();
-    navigate('/');
+    navigate("/");
   };
 
   return (
@@ -40,7 +40,10 @@ export default function Navbar() {
                   </Link>
                 </li>
                 <li className="nav-item">
-                  <button className="nav-link btn btn-link" onClick={handleLogout}>
+                  <button
+                    className="nav-link btn btn-link"
+                    onClick={handleLogout}
+                  >
                     Odjava
                   </button>
                 </li>
@@ -63,3 +66,5 @@ export default function Navbar() {
     </nav>
   );
 }
+
+export default Navbar;

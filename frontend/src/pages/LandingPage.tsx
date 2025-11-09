@@ -1,15 +1,42 @@
-export default function LandingPage() {
+import FeatureCard from "../components/FeatureCard";
+import HeroSection from "../components/HeroSection";
+
+const LandingPage = () => {
+  const features = [
+    {
+      icon: "bi-pencil-square",
+      title: "Jednostavno kreiranje kvizova",
+      text: "Kreiraj i uređuj kvizove u par klikova uz intuitivno sučelje.",
+    },
+    {
+      icon: "bi-bar-chart-line",
+      title: "Praćenje rezultata",
+      text: "Automatski prikaži rezultate i statistiku svakog tima.",
+    },
+    {
+      icon: "bi-calendar-event",
+      title: "Organizacija događaja",
+      text: "Planiraj pub kvizove, dodaj timove i vodi cijeli event iz aplikacije.",
+    },
+  ];
+
   return (
-    <div className="bg-primary text-white text-center py-5">
-      <div className="container">
-        <h1 className="display-4 fw-bold">Dobrodošli u QuizWiz 🎉</h1>
-        <p className="lead mt-3 mb-4">
-          Aplikacija za jednostavnu organizaciju pub kvizova, timova i pitanja.
-        </p>
-        <a href="/login" className="btn btn-light btn-lg">
-          Započni
-        </a>
+    <>
+      <HeroSection />
+      <div className="container my-5">
+        <div className="row">
+          {features.map((feature, index) => (
+            <FeatureCard
+              key={index}
+              icon={feature.icon}
+              title={feature.title}
+              text={feature.text}
+            />
+          ))}
+        </div>
       </div>
-    </div>
+    </>
   );
-}
+};
+
+export default LandingPage;

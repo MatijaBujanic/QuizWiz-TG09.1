@@ -1,4 +1,4 @@
-export const HomePage = () => {
+const HomePage = () => {
   return (
     <div className="container">
       <a className="navbar-brand" href="/">
@@ -35,3 +35,5 @@ export const HomePage = () => {
     </div>
   );
 };
+
+export default HomePage;
