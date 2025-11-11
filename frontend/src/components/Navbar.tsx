@@ -1,10 +1,21 @@
-export default function Navbar() {
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+
+function Navbar() {
+  const { isAuthenticated, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate("/");
+  };
+
   return (
     <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
       <div className="container">
-        <a className="navbar-brand" href="/">
+        <Link className="navbar-brand" to="/">
           QuizWiz
-        </a>
+        </Link>
         <button
           className="navbar-toggler"
           type="button"
@@ -17,19 +28,37 @@ export default function Navbar() {
         <div className="collapse navbar-collapse" id="navbarNav">
           <ul className="navbar-nav ms-auto">
             <li className="nav-item">
-              <a className="nav-link active" href="/">
+              <Link className="nav-link" to="/">
                 Početna
-              </a>
+              </Link>
             </li>
+            {isAuthenticated ? (
+              <>
+                <li className="nav-item">
+                  <Link className="nav-link" to="/home">
+                    Home
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <button
+                    className="nav-link btn btn-link"
+                    onClick={handleLogout}
+                  >
+                    Odjava
+                  </button>
+                </li>
+              </>
+            ) : (
+              <li className="nav-item">
+                <Link className="nav-link" to="/login">
+                  Prijava
+                </Link>
+              </li>
+            )}
             <li className="nav-item">
-              <a className="nav-link" href="/login">
-                Prijava
-              </a>
-            </li>
-            <li className="nav-item">
-              <a className="nav-link" href="/about">
+              <Link className="nav-link" to="/about">
                 O aplikaciji
-              </a>
+              </Link>
             </li>
           </ul>
         </div>
@@ -37,3 +66,5 @@ export default function Navbar() {
     </nav>
   );
 }
+
+export default Navbar;

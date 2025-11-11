@@ -1,4 +1,6 @@
-export default function HeroSection() {
+import { Link } from "react-router-dom";
+
+const HeroSection = () => {
   return (
     <div className="bg-primary text-white text-center py-5">
       <div className="container">
@@ -6,10 +8,12 @@ export default function HeroSection() {
         <p className="lead mt-3 mb-4">
           Aplikacija za jednostavnu organizaciju pub kvizova, timova i pitanja.
         </p>
-        <a href="/login" className="btn btn-light btn-lg">
+        <Link to="/login" className="btn btn-light btn-lg">
           Započni
-        </a>
+        </Link>
       </div>
     </div>
   );
-}
+};
+
+export default HeroSection;
