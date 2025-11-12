@@ -30,7 +30,7 @@ Za frontend potrebno je imati instaliran Node.js i npm.
 Aplikacija će se pokrenuti na adresi: http://localhost:3000
 
 Kako bi se pokrenula deployana aplikacija (frontend u Vercelu, backend u Railwayu).
-[Kliknite kako biste pokrenuli aplikaciju.](quiz-wiz-tg-09-1.vercel.app)
+[Kliknite kako biste pokrenuli aplikaciju.](https://quiz-wiz-tg-09-1.vercel.app/)
 
 ## 2. Rad s granama
 
