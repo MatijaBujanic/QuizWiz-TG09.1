@@ -5,11 +5,11 @@ export default function Login() {
   const error = searchParams.get("error");
 
   const handleGoogleLogin = () => {
-    window.location.href = "http://localhost:8080/oauth2/authorization/google";
+    window.location.href = "https://quizwiz-tg091-production.up.railway.app/oauth2/authorization/google";
   };
 
   const handleLoginGithub = () => {
-    window.location.href = "http://localhost:8080/oauth2/authorization/github";
+    window.location.href = "https://quizwiz-tg091-production.up.railway.app/oauth2/authorization/github";
   };
 
   return (
