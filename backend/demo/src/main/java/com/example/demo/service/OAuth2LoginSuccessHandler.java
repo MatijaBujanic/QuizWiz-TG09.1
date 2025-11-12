@@ -1,24 +1,29 @@
 package com.example.demo.service;
 
 import org.springframework.security.core.Authentication;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Autowired;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.web.util.UriComponentsBuilder;
+
 import java.io.IOException;
 import java.util.*;
 
 @Component
-public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
+public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
-    private static final String REDIRECT_URL = "http://localhost:5173";
+    private static final String REDIRECT_URL = "http://localhost:5173/oauth2/success";
 
     private final SupabaseService supabaseService;
+    private final JwtTokenService jwtTokenService;
 
     @Autowired
-    public OAuth2LoginSuccessHandler(SupabaseService supabaseService) {
+    public OAuth2LoginSuccessHandler(SupabaseService supabaseService, JwtTokenService jwtTokenService) {
         this.supabaseService = supabaseService;
+        this.jwtTokenService = jwtTokenService;
     }
 
     @Override
@@ -26,18 +31,18 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
                                         HttpServletResponse response,
                                         Authentication authentication) throws IOException {
 
-        var principal = (org.springframework.security.oauth2.core.user.DefaultOAuth2User) authentication.getPrincipal();
-        String email = principal.getAttribute("email");
-        String username = principal.getAttribute("name");
+        OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
+        String email = oAuth2User.getAttribute("email");
+        String username = oAuth2User.getAttribute("name");
 
         // if GitHub does not provide email directly
         if (email == null) {
-            email = extractEmailFromOAuthAttributes(principal.getAttributes());
+            email = extractEmailFromOAuthAttributes(oAuth2User.getAttributes());
         }
 
         if (email == null) {
             System.err.println("No email returned from OAuth provider for user: " + username);
-            // fallback email(avoid null in DB)
+            // fallback email (avoid null in DB)
             email = username + "@oauth.github";
         }
 
@@ -53,10 +58,17 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         } else {
             System.err.println("Cannot save user: Email is null or empty");
         }
-        // redirect after handling user
-        response.sendRedirect(REDIRECT_URL);
-    }
 
+        // Generate JWT token for this user
+        String token = jwtTokenService.generateToken(email);
+
+        // Redirect to frontend with token
+        String redirectUrl = UriComponentsBuilder.fromUriString(REDIRECT_URL)
+                .queryParam("token", token)
+                .build().toUriString();
+
+        getRedirectStrategy().sendRedirect(request, response, redirectUrl);
+    }
 
     private String extractEmailFromOAuthAttributes(Map<String, Object> attributes) {
         Object emailsAttr = attributes.get("emails");
@@ -67,8 +79,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         return null;
     }
 
-
-     //create user data map for supabase
+    // create user data map for supabase
     private Map<String, Object> createUserData(String username, String email) {
         Map<String, Object> user = new HashMap<>();
         user.put("username", username != null ? username : "unknown");
