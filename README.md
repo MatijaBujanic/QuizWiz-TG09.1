@@ -63,7 +63,7 @@ Filip Gojak (filip.gojak@fer.unizg.hr) - frontend
 Ana Kasanić (ana.kasanic@fer.unizg.hr) - baze podataka  
 
 # Kontribucije
->Pravila se nalaze u posebnom dokumentu CONTRIBUTING.md
+> Pravila se nalaze u posebnom dokumentu CONTRIBUTING.md
 
 
 
