@@ -27,7 +27,7 @@ Za frontend potrebno je imati instaliran Node.js i npm.
 >
 > npm start
 
-Aplikacija će se pokrenuti na adresi: http://loaclhost:3000
+Aplikacija će se pokrenuti na adresi: http://localhost:3000
 
 ## 2. Rad s granama
 
