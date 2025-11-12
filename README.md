@@ -52,6 +52,7 @@ PUBquizAPP rješava ovaj problem digitalizacijom cijelog procesa - od objave kvi
 •	Autentifikacija: Oauth 2.0
 
 # Instalacija
+[Pokretanje aplikacije klikom na tekst.](quiz-wiz-tg-09-1.vercel.app)
 
 # Članovi tima 
 Matija Bujanić (matija.bujanic@fer.unizg.hr) - voditelj, backend 
