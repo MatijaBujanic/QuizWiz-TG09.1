@@ -2,7 +2,7 @@ const HomePage = () => {
   return (
     <div className="container">
       <a className="navbar-brand" href="/">
-        QuizWizAAAAA
+        QuizWiz
       </a>
       <button
         className="navbar-toggler"
