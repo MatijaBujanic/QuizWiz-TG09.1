@@ -15,7 +15,7 @@ import java.util.*;
 @Component
 public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
-    private static final String REDIRECT_URL = "http://localhost:5173/oauth2/success";
+    private static final String REDIRECT_URL = "https://quiz-wiz-tg-09-1.vercel.app/oauth2/success";
 
     private final SupabaseService supabaseService;
     private final JwtTokenService jwtTokenService;
