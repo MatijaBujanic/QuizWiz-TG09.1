@@ -1,5 +1,5 @@
 function LoginPage() {
-  const BACKEND_URL = "http://localhost:8080";
+  const BACKEND_URL = "https://quizwiz-tg091-production.up.railway.app";
 
   const handleLogin = (provider: "google" | "github") => {
     window.location.href = `${BACKEND_URL}/oauth2/authorization/${provider}`;
