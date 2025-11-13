@@ -41,29 +41,26 @@ PUBquizAPP rješava ovaj problem digitalizacijom cijelog procesa - od objave kvi
 
 # Tehnologije
 
-•	Frontend: React.js, HTML, CSS
-
-•	Backend: Spring Boot
-
-•	Baze podataka: PostgreSQL
-
-•	Mapa: Google Maps
-
-•	Autentifikacija: Oauth 2.0
+*	Frontend: React.js, HTML, CSS
+*	Backend: Spring Boot
+*	Baze podataka: PostgreSQL
+*	Mapa: Google Maps
+*	Autentifikacija: Oauth 2.0
 
 # Instalacija
+[Pokrenite aplikaciju klikom na tekst.](https://quiz-wiz-tg-09-1.vercel.app/)
 
 # Članovi tima 
-Matija Bujanić (matija.bujanic@fer.unizg.hr) - voditelj, baze podataka  
-Mihael Vranić (mihael.vranic@fer.unizg.hr) - baze podataka  
-Paula Vidak (paula.vidak@fer.unizg.hr) - frontend  
-Jona Matsumoto Šegota (jona.matsumoto-segota@fer.unizg.hr) - frontend  
-Dario Herceg (dario.herceg@fer.unizg.hr) - backend  
-Filip Gojak (filip.gojak@fer.unizg.hr) - backend  
-Ana Kasanić (ana.kasanic@fer.unizg.hr) - dokumentacija  
+*	Matija Bujanić (matija.bujanic@fer.unizg.hr) - voditelj, backend 
+*	Mihael Vranić (mihael.vranic@fer.unizg.hr) - baze podataka  
+*	Paula Vidak (paula.vidak@fer.unizg.hr) - dokumentacija  
+* Jona Matsumoto Šegota (jona.matsumoto-segota@fer.unizg.hr) - frontend  
+* Dario Herceg (dario.herceg@fer.unizg.hr) - dokumentacija  
+* Filip Gojak (filip.gojak@fer.unizg.hr) - frontend  
+* Ana Kasanić (ana.kasanic@fer.unizg.hr) - baze podataka  
 
 # Kontribucije
->Pravila se nalaze u posebnom dokumentu CONTRIBUTING.md
+> Pravila se nalaze u posebnom dokumentu CONTRIBUTING.md
 
 
 

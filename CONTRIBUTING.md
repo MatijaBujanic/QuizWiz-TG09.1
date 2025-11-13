@@ -27,7 +27,10 @@ Za frontend potrebno je imati instaliran Node.js i npm.
 >
 > npm start
 
-Aplikacija će se pokrenuti na adresi: http://loaclhost:3000
+Aplikacija će se pokrenuti na adresi: http://localhost:3000
+
+Kako bi se pokrenula deployana aplikacija (frontend u Vercelu, backend u Railwayu).
+[Kliknite kako biste pokrenuli aplikaciju.](https://quiz-wiz-tg-09-1.vercel.app/)
 
 ## 2. Rad s granama
 
@@ -36,10 +39,12 @@ Molimo Vas da ne radite izravno u glavnoj grani (main).
 
 |Vrsta grane|Namjena|
 |-----|---------|
-|main|Glavna, stabilna verzija projekta (finalni kod koji ide u produkciju)|
+|main|Glavna, stabilna verzija projekta (finalni kod koji ide u produkciju).|
 |frontend|Glavna razvojna grana za React dio sustava.|
 |frontend_auth_promjene|Eksperimentalna grana izmjene vezane za autentifikaciju na frontendu.|
 |sekvencijski|Grana korištena za razvoj i pohranu sekvencijskih dijagrama i srodne dokumentacije.|
+|baze|Grana korištena za razvoj baze podataka i njezino hostanje na Supabase.|
+|DEPLOYMENT|Grana korištena za deployanje aplikacije|
 
 ## 3. Smjernice za kodiranje
 **Frontend (React)**
