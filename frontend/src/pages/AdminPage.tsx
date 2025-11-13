@@ -1,5 +1,5 @@
 import { useAuth } from "../context/AuthContext";
-import React, { useState, type FormEvent } from "react";
+import React, { useState } from "react";
 
 function AdminPage() {
   const { token } = useAuth();
@@ -13,11 +13,6 @@ function AdminPage() {
     setMessage(null);
 
     try {
-      // TODO: Backend needs to implement this endpoint:
-      // POST /api/admin/user
-      // Body: { username, email }
-      // Auth: Bearer <JWT>
-      // NOTE: URL may change if backend decides on another path.
       const response = await fetch(
         "https://quizwiz-tg091-production.up.railway.app/api/admin/user", // change link if necessary
         {
