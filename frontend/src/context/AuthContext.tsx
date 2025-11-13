@@ -9,9 +9,18 @@ interface AuthContextType {
   logout: () => void;
 }
 
-const [role, setRole] = useState<string | null>(() =>
-  localStorage.getItem("role")
-);
+function getEmailFromToken(token: string): string | null {
+  try {
+    const payload = token.split(".")[1];
+    const decoded = JSON.parse(atob(payload));
+
+    // Ako backend u JWT stavlja email u "sub" (subject)
+    return decoded.sub || decoded.email || null;
+  } catch (e) {
+    console.error("Failed to decode JWT", e);
+    return null;
+  }
+}
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
@@ -19,7 +28,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(() =>
     localStorage.getItem("jwt_token")
   );
+
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(!!token);
+
+  const [role, setRole] = useState<string | null>(() =>
+    localStorage.getItem("role")
+  );
 
   useEffect(() => {
     if (token) {
@@ -31,8 +45,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [token]);
 
-  const login = async (newToken: string, email: string) => {
+  const login = async (newToken: string) => {
     setToken(newToken);
+
+    const email = getEmailFromToken(newToken);
+    if (!email) {
+      console.error("Email not found in jwt");
+      return;
+    }
 
     try {
       const response = await fetch(
