@@ -60,6 +60,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           email
         )}`
       );
+      console.log("Email: " + email);
+      console.log("Encoded: " + encodeURIComponent(email));
 
       if (response.ok) {
         const data = await response.json();
