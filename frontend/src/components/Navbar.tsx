@@ -2,7 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 function Navbar() {
-  const { isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, role, logout } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -52,6 +52,13 @@ function Navbar() {
               <li className="nav-item">
                 <Link className="nav-link" to="/login">
                   Prijava
+                </Link>
+              </li>
+            )}
+            {role === "admin" && (
+              <li className="nav-item">
+                <Link className="nav-link" to="/admin">
+                  Admin
                 </Link>
               </li>
             )}
