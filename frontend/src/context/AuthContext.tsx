@@ -5,7 +5,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   token: string | null;
   role: string | null;
-  login: (token: string) => void;
+  login: (token: string, email: string) => Promise<void>;
   logout: () => void;
 }
 
@@ -31,25 +31,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [token]);
 
-  const login = async (newToken: string) => {
+  const login = async (newToken: string, email: string) => {
     setToken(newToken);
 
     try {
       const response = await fetch(
-        "https://quizwiz-tg091-production.up.railway.app/api/admin/user", // change link if necessary
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        `https://quizwiz-tg091-production.up.railway.app/api/admin/user/role?email=${encodeURIComponent(
+          email
+        )}`
       );
 
       if (response.ok) {
         const data = await response.json();
         setRole(data.role);
         localStorage.setItem("role", data.role);
-      } else {
-        console.error("Failed to fetch role");
       }
     } catch (err) {
       console.error("Error fetching user role", err);
