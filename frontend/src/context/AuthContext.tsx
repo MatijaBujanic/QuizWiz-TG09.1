@@ -1,12 +1,5 @@
-import { jwtDecode } from "jwt-decode";
 import { createContext, useContext, useState, useEffect } from "react";
 import type { ReactNode } from "react";
-
-interface DecodedToken {
-  sub: string;
-  role?: string;
-  exp: number;
-}
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -16,7 +9,9 @@ interface AuthContextType {
   logout: () => void;
 }
 
-const [role, setRole] = useState<string | null>(null);
+const [role, setRole] = useState<string | null>(() =>
+  localStorage.getItem("role")
+);
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
@@ -36,15 +31,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [token]);
 
-  const login = (newToken: string) => {
-    const decoded: DecodedToken = jwtDecode(newToken);
-    setRole(decoded.role ?? null);
+  const login = async (newToken: string) => {
     setToken(newToken);
+
+    try {
+      const response = await fetch(
+        "https://quizwiz-tg091-production.up.railway.app/api/admin/user", // change link if necessary
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        setRole(data.role);
+        localStorage.setItem("role", data.role);
+      } else {
+        console.error("Failed to fetch role");
+      }
+    } catch (err) {
+      console.error("Error fetching user role", err);
+    }
   };
 
   const logout = () => {
     setToken(null);
     setRole(null);
+    localStorage.removeItem("role");
     window.location.href = "/";
   };
 
