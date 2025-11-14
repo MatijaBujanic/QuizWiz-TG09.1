@@ -79,52 +79,26 @@ function AdminPage() {
     if (!confirm("Jeste li sigurni?")) return;
 
     try {
-      console.log("Deleting user with email:", userEmail);
-      console.log("Current token:", token);
-
       const response = await fetch(
-        `https://quizwiz-tg091-production.up.railway.app/api/admin/deleteuser`,
+        `https://quizwiz-tg091-production.up.railway.app/api/admin/users?email=${encodeURIComponent(
+          userEmail
+        )}`,
         {
           method: "DELETE",
           headers: {
             Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ email: userEmail }),
         }
       );
 
-      console.log("Response status:", response.status);
-      console.log("Response ok:", response.ok);
-
-      const responseText = await response.text();
-      console.log("Response text:", responseText);
-
-      let responseData;
-      try {
-        responseData = JSON.parse(responseText);
-        console.log("Parsed response:", responseData);
-      } catch (e) {
-        console.log("Could not parse response as JSON");
-      }
-
       if (!response.ok) {
-        console.error("Failed to delete user. Status:", response.status);
-        if (responseData?.message) {
-          console.error("Error message:", responseData.message);
-          alert("Error: " + responseData.message);
-        }
+        console.error("Failed to delete user");
         return;
       }
 
-      console.log("User deleted successfully");
-      if (responseData?.message) {
-        alert(responseData.message);
-      }
       fetchUsers();
     } catch (err) {
       console.error("Error deleting user:", err);
-      alert("Error deleting user. Check console for details.");
     }
   };
 
