@@ -51,30 +51,4 @@ public class AdminService {
         }
     }
 
-    public boolean deleteUser(String email) {
-        // Validate input
-        if (email == null || email.trim().isEmpty()) {
-            throw new IllegalArgumentException("Email is required");
-        }
-
-        // Normalize email to lowercase for comparison
-        String normalizedEmail = email.trim().toLowerCase();
-
-        System.out.println("Original email: " + email);
-        System.out.println("Normalized email: " + normalizedEmail);
-
-        // Check if user exists before deleting (use normalized email)
-        if (!supabaseService.userExists(normalizedEmail)) {
-            System.out.println("User not found with normalized email: " + normalizedEmail);
-            throw new IllegalArgumentException("User with this email does not exist");
-        }
-
-        try {
-
-            return supabaseService.deleteUserByEmail(normalizedEmail);
-        } catch (Exception e) {
-            throw new RuntimeException("Error deleting user: " + e.getMessage());
-        }
-    }
-
 }
