@@ -1,16 +1,22 @@
 package com.example.demo.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.time.LocalDateTime;
 
 public class Users {
 
+    @JsonProperty("user_id")
     private Long userId;
     private String username;
     private String email;
     private String password;
     private String contact_number;
     private String role;
+
+    @JsonProperty("created_at")
     private LocalDateTime createdAt;
+
 
     public Users() {
     }

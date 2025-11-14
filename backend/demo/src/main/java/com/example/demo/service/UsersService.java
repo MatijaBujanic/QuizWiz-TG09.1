@@ -20,19 +20,19 @@ public class UsersService {
     private final RestTemplate restTemplate = new RestTemplate();
 
     public Optional<Users> findByUsername(String username) {
-        String url = supabaseUrl + "/Users?username=eq." + username;
+        String url = supabaseUrl + "/users?username=eq." + username;
         List<Users> users = queryUsers(url);
         return users.isEmpty() ? Optional.empty() : Optional.of(users.get(0));
     }
 
     public Optional<Users> findByEmail(String email) {
-        String url = supabaseUrl + "/Users?email=eq." + email;
+        String url = supabaseUrl + "/users?email=eq." + email;
         List<Users> users = queryUsers(url);
         return users.isEmpty() ? Optional.empty() : Optional.of(users.get(0));
     }
 
     public Users save(Users user) {
-        String url = supabaseUrl + "/Users";
+        String url = supabaseUrl + "/users";
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
