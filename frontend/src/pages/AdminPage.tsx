@@ -111,9 +111,8 @@ function AdminPage() {
       <h2 className="mb-4">Admin Panel</h2>
 
       <div className="card mb-4">
-        <h4 className="mb-3">Dodaj korisnika</h4>
         <div className="card-body">
-          <h4 className="card-title mb-3">Add New User</h4>
+          <h4 className="card-title mb-3">Dodaj korisnika</h4>
 
           <form onSubmit={handleAddUser}>
             <div className="mb-3">
@@ -139,7 +138,7 @@ function AdminPage() {
             </div>
 
             <button className="btn btn-primary" type="submit">
-              Add User
+              Dodaj
             </button>
           </form>
         </div>
@@ -171,7 +170,8 @@ function AdminPage() {
                   <span className="text-muted">Admin</span>
                 ) : (
                   <button
-                    className="btn btn-sm btn-danger"
+                    className="btn btn-sm btn-danger d-flex justify-content-center align-items-center"
+                    style={{ width: "32px", height: "32px" }}
                     onClick={() => handleDelete(u.email)}
                   >
                     <i className="bi bi-trash me-1"></i>
