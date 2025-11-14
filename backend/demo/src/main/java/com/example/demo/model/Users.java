@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 
 public class Users {
 
+    @JsonProperty("user_id")
     private Long userId;
     private String username;
     private String email;
