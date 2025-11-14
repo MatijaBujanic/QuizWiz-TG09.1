@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -41,4 +42,13 @@ public class AdminService {
 
         return supabaseService.saveUser(user);
     }
+
+    public List<Map<String, Object>> getAllUsers() {
+        try {
+            return supabaseService.getAllUsers();
+        } catch (Exception e) {
+            throw new RuntimeException("Error fetching users: " + e.getMessage());
+        }
+    }
+
 }

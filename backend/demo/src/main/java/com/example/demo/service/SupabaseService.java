@@ -85,5 +85,34 @@ public class SupabaseService {
         headers.set("Authorization", "Bearer " + serviceRoleKey);
         return headers;
     }
+    
+    public List<Map<String, Object>> getAllUsers() {
+        try {
+            String url = supabaseUrl + "/users?select=user_id,username,email,contact_number,role,created_at&order=created_at.desc";
+
+            HttpHeaders headers = createHeaders();
+            headers.setAccept(List.of(MediaType.APPLICATION_JSON));
+
+            HttpEntity<String> request = new HttpEntity<>(headers);
+            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, request, String.class);
+
+            String body = response.getBody();
+            if (body == null || body.trim().isEmpty()) {
+                return Collections.emptyList();
+            }
+
+            // Parse the JSON response into a list of maps
+            List<Map<String, Object>> users = objectMapper.readValue(
+                    body,
+                    new TypeReference<List<Map<String, Object>>>(){}
+            );
+
+            return users;
+
+        } catch (Exception e) {
+            System.err.println("Error fetching all users from Supabase: " + e.getMessage());
+            return Collections.emptyList();
+        }
+    }
 
 }
