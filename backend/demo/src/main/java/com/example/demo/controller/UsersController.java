@@ -28,7 +28,7 @@ public class UsersController {
         Users user = new Users();
         user.setUsername((String) attributes.get("preferred_username"));
         user.setEmail((String) attributes.get("email"));
-        user.setRole("ROLE_USER"); // Default role, spring serurity(at runtime), kasnije mapiramo roleove
+        user.setRole("user"); // Default role, spring serurity(at runtime), kasnije mapiramo roleove
         user.setContact_number(null);
 
         return ResponseEntity.ok(user);

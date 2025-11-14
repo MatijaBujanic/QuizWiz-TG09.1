@@ -8,6 +8,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -47,6 +48,27 @@ public class AdminController {
             errorResponse.put("success", false);
             errorResponse.put("message", e.getMessage());
             return ResponseEntity.badRequest().body(errorResponse);
+        }
+    }
+
+    @GetMapping("/users")
+    @PreAuthorize("hasRole('admin')")
+    public ResponseEntity<?> getAllUsers() {
+        try {
+            List<Map<String, Object>> users = adminService.getAllUsers();
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("users", users);
+            response.put("count", users.size());
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("message", "Error fetching users: " + e.getMessage());
+            return ResponseEntity.internalServerError().body(errorResponse);
         }
     }
 
