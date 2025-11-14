@@ -27,33 +27,44 @@ public class SupabaseService {
         this.objectMapper = objectMapper;
     }
      // check if user exists in supabas(by email),
-    public boolean userExists(String email) {
-        if (email == null || email.trim().isEmpty()) {
-            System.err.println("Cannot check user existence — email is null or empty");
-            return false;
-        }
+     public boolean userExists(String email) {
+         if (email == null || email.trim().isEmpty()) {
+             System.err.println("Cannot check user existence — email is null or empty");
+             return false;
+         }
 
-        try {
-            String encodedEmail = URLEncoder.encode(email, StandardCharsets.UTF_8);
-            String url = supabaseUrl + "/users?email=eq." + encodedEmail;
+         try {
+             String encodedEmail = URLEncoder.encode(email, StandardCharsets.UTF_8);
+             String url = supabaseUrl + "/users?email=eq." + encodedEmail;
 
-            HttpHeaders headers = createHeaders();
-            headers.setAccept(List.of(MediaType.APPLICATION_JSON));
+             System.out.println("Checking if user exists with email: " + email);
+             System.out.println("Encoded email: " + encodedEmail);
+             System.out.println("Request URL: " + url);
 
-            HttpEntity<String> request = new HttpEntity<>(headers);
-            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, request, String.class);
+             HttpHeaders headers = createHeaders();
+             headers.setAccept(List.of(MediaType.APPLICATION_JSON));
 
-            String body = response.getBody();
-            if (body == null) return false;
+             HttpEntity<String> request = new HttpEntity<>(headers);
+             ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, request, String.class);
 
-            List<Map<String, Object>> users = objectMapper.readValue(body, new TypeReference<List<Map<String, Object>>>(){});
-            return !users.isEmpty();
+             String body = response.getBody();
+             System.out.println("Response body: " + body);
 
-        } catch (Exception e) {
-            System.err.println("Error checking if user exists: " + e.getMessage());
-            return false;
-        }
-    }
+             if (body == null) {
+                 System.out.println("Response body is null");
+                 return false;
+             }
+
+             List<Map<String, Object>> users = objectMapper.readValue(body, new TypeReference<List<Map<String, Object>>>(){});
+             System.out.println("Found users: " + users.size());
+
+             return !users.isEmpty();
+
+         } catch (Exception e) {
+             System.err.println("Error checking if user exists: " + e.getMessage());
+             return false;
+         }
+     }
 
     //save user to supabase
     public boolean saveUser(Map<String, Object> user) {
@@ -101,7 +112,7 @@ public class SupabaseService {
                 return Collections.emptyList();
             }
 
-            // Parse the JSON response into a list of maps
+
             List<Map<String, Object>> users = objectMapper.readValue(
                     body,
                     new TypeReference<List<Map<String, Object>>>(){}
@@ -112,6 +123,35 @@ public class SupabaseService {
         } catch (Exception e) {
             System.err.println("Error fetching all users from Supabase: " + e.getMessage());
             return Collections.emptyList();
+        }
+    }
+
+    public boolean deleteUserByEmail(String email) {
+        if (email == null || email.trim().isEmpty()) {
+            System.err.println("Cannot delete user — email is null or empty");
+            return false;
+        }
+
+        try {
+            String normalizedEmail = email.trim().toLowerCase();
+            String encodedEmail = URLEncoder.encode(normalizedEmail, StandardCharsets.UTF_8);
+            String url = supabaseUrl + "/users?email=eq." + encodedEmail;
+
+            System.out.println("Deleting user with normalized email: " + normalizedEmail);
+            System.out.println("Delete URL: " + url);
+
+            HttpHeaders headers = createHeaders();
+            headers.set("Prefer", "return=representation");
+
+            HttpEntity<String> request = new HttpEntity<>(headers);
+            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.DELETE, request, String.class);
+
+            System.out.println("User deleted from Supabase: " + response.getStatusCode());
+            return response.getStatusCode().is2xxSuccessful();
+
+        } catch (Exception e) {
+            System.err.println("Error deleting user from Supabase: " + e.getMessage());
+            return false;
         }
     }
 

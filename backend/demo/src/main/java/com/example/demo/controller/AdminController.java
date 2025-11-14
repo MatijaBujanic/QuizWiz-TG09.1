@@ -72,4 +72,44 @@ public class AdminController {
         }
     }
 
+    @DeleteMapping("/deleteuser")
+    @PreAuthorize("hasRole('admin')")
+    public ResponseEntity<?> deleteUser(@RequestBody Map<String, String> request) {
+        try {
+            String email = request.get("email");
+
+            if (email == null || email.trim().isEmpty()) {
+                Map<String, Object> errorResponse = new HashMap<>();
+                errorResponse.put("success", false);
+                errorResponse.put("message", "Email parameter is required");
+                return ResponseEntity.badRequest().body(errorResponse);
+            }
+
+            boolean success = adminService.deleteUser(email.trim());
+
+            Map<String, Object> response = new HashMap<>();
+            if (success) {
+                response.put("success", true);
+                response.put("message", "User deleted successfully");
+                response.put("deletedEmail", email);
+                return ResponseEntity.ok(response);
+            } else {
+                response.put("success", false);
+                response.put("message", "Failed to delete user - user not found");
+                return ResponseEntity.badRequest().body(response);
+            }
+
+        } catch (IllegalArgumentException e) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("message", e.getMessage());
+            return ResponseEntity.badRequest().body(errorResponse);
+        } catch (Exception e) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("message", "Error deleting user: " + e.getMessage());
+            return ResponseEntity.internalServerError().body(errorResponse);
+        }
+    }
+
 }
