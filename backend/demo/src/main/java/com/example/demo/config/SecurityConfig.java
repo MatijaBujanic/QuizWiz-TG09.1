@@ -33,6 +33,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/home", "/health", "/login/**", "/oauth2/**",
                                 "/api/users/role", "/v3/api-docs/**", "/swagger-ui/**").permitAll()
+                        .requestMatchers("/api/admin/**").hasRole("admin")
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth -> oauth
