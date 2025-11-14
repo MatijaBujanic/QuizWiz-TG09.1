@@ -39,10 +39,10 @@ public class AdminService {
         Users newUser = new Users();
         newUser.setUsername(username.trim());
         newUser.setEmail(email.trim().toLowerCase());
-        newUser.setPassword(""); // Empty password for admin-created users
+        //newUser.setPassword(""); // Empty password for admin-created users
         newUser.setContact_number(null);
         newUser.setRole("user"); // Default role
-        newUser.setCreatedAt(LocalDateTime.now());
+        //newUser.setCreatedAt(LocalDateTime.now());
 
         try {
             return usersService.save(newUser);
