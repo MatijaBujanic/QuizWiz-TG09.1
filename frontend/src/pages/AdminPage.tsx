@@ -15,6 +15,7 @@ function AdminPage() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const fetchUsers = async () => {
     try {
@@ -42,6 +43,7 @@ function AdminPage() {
   const handleAddUser = async (e: React.FormEvent) => {
     e.preventDefault();
     setMessage(null);
+    setLoading(true);
 
     try {
       const response = await fetch(
@@ -56,17 +58,20 @@ function AdminPage() {
         }
       );
 
+      const data = await response.json();
+
       if (!response.ok) {
         console.error("Failed to add user. Status:", response.status);
         return;
       }
 
-      setMessage("Korisnik uspješno dodan");
+      setMessage("Korisnik uspješno dodan!");
       setUsername("");
       setEmail("");
     } catch (err: any) {
       setMessage("Greška: " + err.message);
-      console.error("Error adding user: ", err);
+    } finally {
+      setLoading(false);
     }
   };
 
