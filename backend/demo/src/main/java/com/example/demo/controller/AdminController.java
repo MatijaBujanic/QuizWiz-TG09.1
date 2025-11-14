@@ -24,31 +24,29 @@ public class AdminController {
     @PreAuthorize("hasRole('admin')")
     public ResponseEntity<?> createUser(@RequestBody CreateUserRequest request) {
         try {
-            Users createdUser = adminService.createUser(request.getUsername(), request.getEmail());
+            boolean success = adminService.createUser(request.getUsername(), request.getEmail());
 
             Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("message", "User created successfully");
-            response.put("user", Map.of(
-                    "id", createdUser.getUserId(),
-                    "username", createdUser.getUsername(),
-                    "email", createdUser.getEmail(),
-                    "role", createdUser.getRole()
-            ));
-
-            return ResponseEntity.ok(response);
+            if (success) {
+                response.put("success", true);
+                response.put("message", "User created successfully");
+                response.put("user", Map.of(
+                        "username", request.getUsername(),
+                        "email", request.getEmail(),
+                        "role", "user"
+                ));
+                return ResponseEntity.ok(response);
+            } else {
+                response.put("success", false);
+                response.put("message", "Failed to create user");
+                return ResponseEntity.badRequest().body(response);
+            }
 
         } catch (IllegalArgumentException e) {
             Map<String, Object> errorResponse = new HashMap<>();
             errorResponse.put("success", false);
             errorResponse.put("message", e.getMessage());
             return ResponseEntity.badRequest().body(errorResponse);
-
-        } catch (Exception e) {
-            Map<String, Object> errorResponse = new HashMap<>();
-            errorResponse.put("success", false);
-            errorResponse.put("message", "Internal server error: " + e.getMessage());
-            return ResponseEntity.internalServerError().body(errorResponse);
         }
     }
 

@@ -4,18 +4,20 @@ import com.example.demo.model.Users;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
 public class AdminService {
 
-    private final UsersService usersService;
+    private final SupabaseService supabaseService;
 
-    public AdminService(UsersService usersService) {
-        this.usersService = usersService;
+    public AdminService(SupabaseService supabaseService) {
+        this.supabaseService = supabaseService;
     }
 
-    public Users createUser(String username, String email) {
+    public boolean createUser(String username, String email) {
         // Validate input
         if (username == null || username.trim().isEmpty()) {
             throw new IllegalArgumentException("Username is required");
@@ -25,29 +27,18 @@ public class AdminService {
         }
 
         // Check if user already exists
-        Optional<Users> existingUser = usersService.findByEmail(email);
-        if (existingUser.isPresent()) {
+        if (supabaseService.userExists(email)) {
             throw new IllegalArgumentException("User with this email already exists");
         }
 
-        Optional<Users> existingUsername = usersService.findByUsername(username);
-        if (existingUsername.isPresent()) {
-            throw new IllegalArgumentException("Username already taken");
-        }
+        // Create user data map (same format as OAuth2LoginSuccessHandler)
+        Map<String, Object> user = new HashMap<>();
+        user.put("username", username.trim());
+        user.put("email", email.trim().toLowerCase());
+        user.put("password", "");
+        user.put("contact_number", null);
+        user.put("role", "user");
 
-        // Create new user
-        Users newUser = new Users();
-        newUser.setUsername(username.trim());
-        newUser.setEmail(email.trim().toLowerCase());
-        //newUser.setPassword(""); // Empty password for admin-created users
-        newUser.setContact_number(null);
-        newUser.setRole("user"); // Default role
-        //newUser.setCreatedAt(LocalDateTime.now());
-
-        try {
-            return usersService.save(newUser);
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Database constraint violation: " + e.getMessage());
-        }
+        return supabaseService.saveUser(user);
     }
 }
