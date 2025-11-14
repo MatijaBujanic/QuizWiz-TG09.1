@@ -1,5 +1,7 @@
 package com.example.demo.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.time.LocalDateTime;
 
 public class Users {
@@ -10,7 +12,10 @@ public class Users {
     private String password;
     private String contact_number;
     private String role;
+
+    @JsonProperty("created_at")
     private LocalDateTime createdAt;
+
 
     public Users() {
     }
