@@ -27,10 +27,22 @@ function AdminPage() {
         }
       );
 
-      const data = await response.json();
+      // First, get the response as text to see what's actually returned
+      const responseText = await response.text();
+      console.log("Raw response:", responseText);
+      console.log("Response status:", response.status);
+
+      // Then try to parse as JSON
+      let data;
+      try {
+        data = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error("JSON parse error. Raw response was:", responseText);
+        throw new Error(`Server returned non-JSON response: ${responseText.substring(0, 100)}`);
+      }
 
       if (!response.ok) {
-        throw new Error(data.message || "Failed to create user");
+        throw new Error(data.message || `HTTP error: ${response.status}`);
       }
 
       setMessage("Korisnik uspješno dodan!");
