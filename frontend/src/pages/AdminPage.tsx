@@ -19,14 +19,11 @@ function AdminPage() {
 
   const fetchUsers = async () => {
     try {
-      const response = await fetch(
-        "https://quizwiz-tg091-production.up.railway.app/api/admin/users",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await fetch("https://localhost:8080/api/admin/users", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       if (!response.ok) {
         console.error("Failed to fetch users: " + response.status);

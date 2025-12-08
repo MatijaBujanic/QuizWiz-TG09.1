@@ -40,13 +40,14 @@ public class Quiz {
     @JsonProperty("location_id")
     private Integer locationId;
 
-    public Quiz() {}
+    public Quiz() {
+    }
 
     public Quiz(Integer quizId, String quizName, String quizTheme,
-                String applicationType, LocalDate date, LocalTime time,
-                String description, String status,
-                Integer numberOfRounds, Integer maxPoints,
-                LocalDateTime createdAt, Integer organizerId, Integer locationId) {
+            String applicationType, LocalDate date, LocalTime time,
+            String description, String status,
+            Integer numberOfRounds, Integer maxPoints,
+            LocalDateTime createdAt, Integer organizerId, Integer locationId) {
         this.quizId = quizId;
         this.quizName = quizName;
         this.quizTheme = quizTheme;
@@ -62,42 +63,107 @@ public class Quiz {
         this.locationId = locationId;
     }
 
-    public Integer getQuizId() { return quizId; }
-    public void setQuizId(Integer quizId) { this.quizId = quizId; }
+    public Integer getQuizId() {
+        return quizId;
+    }
 
-    public String getQuizName() { return quizName; }
-    public void setQuizName(String quizName) { this.quizName = quizName; }
+    public void setQuizId(Integer quizId) {
+        this.quizId = quizId;
+    }
 
-    public String getQuizTheme() { return quizTheme; }
-    public void setQuizTheme(String quizTheme) { this.quizTheme = quizTheme; }
+    public String getQuizName() {
+        return quizName;
+    }
 
-    public String getApplicationType() { return applicationType; }
-    public void setApplicationType(String applicationType) { this.applicationType = applicationType; }
+    public void setQuizName(String quizName) {
+        this.quizName = quizName;
+    }
 
-    public LocalDate getDate() { return date; }
-    public void setDate(LocalDate date) { this.date = date; }
+    public String getQuizTheme() {
+        return quizTheme;
+    }
 
-    public LocalTime getTime() { return time; }
-    public void setTime(LocalTime time) { this.time = time; }
+    public void setQuizTheme(String quizTheme) {
+        this.quizTheme = quizTheme;
+    }
 
-    public String getDescription() { return description; }
-    public void setDescription(String description) { this.description = description; }
+    public String getApplicationType() {
+        return applicationType;
+    }
 
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
+    public void setApplicationType(String applicationType) {
+        this.applicationType = applicationType;
+    }
 
-    public Integer getNumberOfRounds() { return numberOfRounds; }
-    public void setNumberOfRounds(Integer numberOfRounds) { this.numberOfRounds = numberOfRounds; }
+    public LocalDate getDate() {
+        return date;
+    }
 
-    public Integer getMaxPoints() { return maxPoints; }
-    public void setMaxPoints(Integer maxPoints) { this.maxPoints = maxPoints; }
+    public void setDate(LocalDate date) {
+        this.date = date;
+    }
 
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    public LocalTime getTime() {
+        return time;
+    }
 
-    public Integer getOrganizerId() { return organizerId; }
-    public void setOrganizerId(Integer organizerId) { this.organizerId = organizerId; }
+    public void setTime(LocalTime time) {
+        this.time = time;
+    }
 
-    public Integer getLocationId() { return locationId; }
-    public void setLocationId(Integer locationId) { this.locationId = locationId; }
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public Integer getNumberOfRounds() {
+        return numberOfRounds;
+    }
+
+    public void setNumberOfRounds(Integer numberOfRounds) {
+        this.numberOfRounds = numberOfRounds;
+    }
+
+    public Integer getMaxPoints() {
+        return maxPoints;
+    }
+
+    public void setMaxPoints(Integer maxPoints) {
+        this.maxPoints = maxPoints;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Integer getOrganizerId() {
+        return organizerId;
+    }
+
+    public void setOrganizerId(Integer organizerId) {
+        this.organizerId = organizerId;
+    }
+
+    public Integer getLocationId() {
+        return locationId;
+    }
+
+    public void setLocationId(Integer locationId) {
+        this.locationId = locationId;
+    }
 }

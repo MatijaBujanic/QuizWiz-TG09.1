@@ -32,20 +32,20 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/home", "/health", "/login/**", "/oauth2/**",
-                                "/api/users/role", "/v3/api-docs/**", "/swagger-ui/**", "/api/admin/**").permitAll()
-                        .anyRequest().authenticated()
-                )
+                                "/api/users/role", "/v3/api-docs/**", "/swagger-ui/**", "/api/admin/**")
+                        .permitAll()
+                        .anyRequest().authenticated())
                 .oauth2Login(oauth -> oauth
-                        .successHandler(oauth2LoginSuccessHandler)
-                )
+                        .successHandler(oauth2LoginSuccessHandler))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED));
 
         return http.build();
     }
+
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("https://quiz-wiz-tg-09-1.vercel.app"));
+        configuration.setAllowedOrigins(List.of("https://localhost:5173"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);

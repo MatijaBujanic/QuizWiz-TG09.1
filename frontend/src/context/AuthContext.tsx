@@ -5,7 +5,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   token: string | null;
   role: string | null;
-  login: (token: string, email: string) => Promise<void>;
+  login: (token: string) => Promise<void>;
   logout: () => void;
 }
 
@@ -56,7 +56,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     try {
       const response = await fetch(
-        `https://quizwiz-tg091-production.up.railway.app/api/users/role?email=${encodeURIComponent(
+        `https://localhost:8080/api/users/role?email=${encodeURIComponent(
           email
         )}`
       );

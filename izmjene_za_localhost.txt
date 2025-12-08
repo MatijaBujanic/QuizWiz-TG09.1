@@ -1,0 +1,31 @@
+AdminPage.tsx:
+"http://localhost:8080/api/admin/users"
+=>
+"https://quizwiz-tg091-production.up.railway.app/api/admin/users"
+
+LoginPage.tsx:
+const BACKEND_URL = "http://localhost:8080";
+=>
+const BACKEND_URL = "https://quizwiz-tg091-production.up.railway.app";
+
+AuthContext.tsx:
+http://localhost:8080/api/users/role
+=>
+https://quizwiz-tg091-production.up.railway.app/api/users/role
+
+OAuth2LoginSuccessHandler.java:
+private static final String REDIRECT_URL = "http://localhost:5173/oauth2/callback";
+=>
+private static final String REDIRECT_URL = "https://quiz-wiz-tg-09-1.vercel.app/oauth2/success";
+
+SecurityConfig.java:
+configuration.setAllowedOrigins(List.of("http://localhost:5173"));
+=>
+configuration.setAllowedOrigins(List.of("https://quiz-wiz-tg-09-1.vercel.app"));
+
+application.properties:
+app.frontend.url=http://localhost:5173
+spring.profiles.active=dev
+=>
+app.frontend.url=${FRONTEND_URL:https://quiz-wiz-tg-09-1.vercel.app}
+spring.profiles.active=prod
