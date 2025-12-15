@@ -56,7 +56,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     try {
       const response = await fetch(
-        `https://localhost:8080/api/users/role?email=${encodeURIComponent(
+        `http://localhost:8080/api/users/role?email=${encodeURIComponent(
           email
         )}`
       );

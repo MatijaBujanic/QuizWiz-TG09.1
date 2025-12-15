@@ -19,7 +19,7 @@ function AdminPage() {
 
   const fetchUsers = async () => {
     try {
-      const response = await fetch("https://localhost:8080/api/admin/users", {
+      const response = await fetch("http://localhost:8080/api/admin/users", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
