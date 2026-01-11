@@ -4,8 +4,13 @@ public class CreateUserRequest {
     private String username;
     private String email;
 
-    // Default constructor
+    // Constructors
     public CreateUserRequest() {}
+
+    public CreateUserRequest(String username, String email) {
+        this.username = username;
+        this.email = email;
+    }
 
     // Getters and setters
     public String getUsername() { return username; }

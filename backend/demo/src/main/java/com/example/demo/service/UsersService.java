@@ -1,66 +1,43 @@
 package com.example.demo.service;
 
 import com.example.demo.model.Users;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
+import com.example.demo.repository.SupabaseRepository;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 
 @Service
-public class UsersService {
+public class UsersService implements UserService {
 
-    @Value("${supabase.url}")
-    private String supabaseUrl;
+    private final SupabaseRepository supabaseRepository;
 
-    @Value("${supabase.service_role_key}")
-    private String serviceRoleKey;
+    public UsersService(SupabaseRepository supabaseRepository) {
+        this.supabaseRepository = supabaseRepository;
+    }
 
-    private final RestTemplate restTemplate = new RestTemplate();
-
+    @Override
     public Optional<Users> findByUsername(String username) {
-        String url = supabaseUrl + "/users?username=eq." + username;
-        List<Users> users = queryUsers(url);
-        return users.isEmpty() ? Optional.empty() : Optional.of(users.get(0));
+        return supabaseRepository.findByColumn("users", "username", username, Users.class);
     }
 
+    @Override
     public Optional<Users> findByEmail(String email) {
-        String url = supabaseUrl + "/users?email=eq." + email;
-        List<Users> users = queryUsers(url);
-        return users.isEmpty() ? Optional.empty() : Optional.of(users.get(0));
+        return supabaseRepository.findByColumn("users", "email", email, Users.class);
     }
 
+    @Override
     public Users save(Users user) {
-        String url = supabaseUrl + "/users";
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("apikey", serviceRoleKey);
-        headers.set("Authorization", "Bearer " + serviceRoleKey);
-        headers.set("Prefer", "return=representation"); // get inserted record back
-
-        HttpEntity<Users> request = new HttpEntity<>(user, headers);
-
-        ResponseEntity<Users[]> response = restTemplate.postForEntity(url, request, Users[].class);
-        if (response.getStatusCode() == HttpStatus.CREATED && response.getBody() != null) {
-            return response.getBody()[0];
-        }
-        throw new RuntimeException("Failed to save user to Supabase");
+        return supabaseRepository.save("users", user, true);
     }
 
-    private List<Users> queryUsers(String url) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("apikey", serviceRoleKey);
-        headers.set("Authorization", "Bearer " + serviceRoleKey);
-        headers.setAccept(List.of(MediaType.APPLICATION_JSON));
+    @Override
+    public List<Users> findAll() {
+        return supabaseRepository.findAll("users", "order=created_at.desc", Users.class);
+    }
 
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-        ResponseEntity<Users[]> response = restTemplate.exchange(url, HttpMethod.GET, entity, Users[].class);
-
-        if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
-            return Arrays.asList(response.getBody());
-        }
-        return Collections.emptyList();
+    @Override
+    public boolean existsByEmail(String email) {
+        return findByEmail(email).isPresent();
     }
 }

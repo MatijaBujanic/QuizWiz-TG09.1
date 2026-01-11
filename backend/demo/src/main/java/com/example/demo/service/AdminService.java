@@ -1,20 +1,18 @@
 package com.example.demo.service;
 
-import com.example.demo.model.Users;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @Service
 public class AdminService {
 
+    private final UserService userService;
     private final SupabaseService supabaseService;
 
-    public AdminService(SupabaseService supabaseService) {
+    public AdminService(UserService userService, SupabaseService supabaseService) {
+        this.userService = userService;
         this.supabaseService = supabaseService;
     }
 
@@ -28,11 +26,11 @@ public class AdminService {
         }
 
         // Check if user already exists
-        if (supabaseService.userExists(email)) {
+        if (userService.existsByEmail(email)) {
             throw new IllegalArgumentException("User with this email already exists");
         }
 
-        // Create user data map (same format as OAuth2LoginSuccessHandler)
+        // Create user data map
         Map<String, Object> user = new HashMap<>();
         user.put("username", username.trim());
         user.put("email", email.trim().toLowerCase());
@@ -43,12 +41,5 @@ public class AdminService {
         return supabaseService.saveUser(user);
     }
 
-    public List<Map<String, Object>> getAllUsers() {
-        try {
-            return supabaseService.getAllUsers();
-        } catch (Exception e) {
-            throw new RuntimeException("Error fetching users: " + e.getMessage());
-        }
-    }
 
 }

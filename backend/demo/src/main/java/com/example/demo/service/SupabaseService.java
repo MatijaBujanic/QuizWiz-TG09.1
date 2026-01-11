@@ -2,16 +2,21 @@ package com.example.demo.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.http.*;
+
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 @Service
 public class SupabaseService {
+
+    private static final Logger log = LoggerFactory.getLogger(SupabaseService.class);
 
     @Value("${supabase.url}")
     private String supabaseUrl;
@@ -26,10 +31,10 @@ public class SupabaseService {
         this.restTemplate = restTemplate;
         this.objectMapper = objectMapper;
     }
-     // check if user exists in supabas(by email),
+
     public boolean userExists(String email) {
         if (email == null || email.trim().isEmpty()) {
-            System.err.println("Cannot check user existence — email is null or empty");
+            log.warn("Cannot check user existence — email is null or empty");
             return false;
         }
 
@@ -44,18 +49,22 @@ public class SupabaseService {
             ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, request, String.class);
 
             String body = response.getBody();
-            if (body == null) return false;
+            if (body == null) {
+                log.debug("No response body for email check: {}", email);
+                return false;
+            }
 
             List<Map<String, Object>> users = objectMapper.readValue(body, new TypeReference<List<Map<String, Object>>>(){});
-            return !users.isEmpty();
+            boolean exists = !users.isEmpty();
+            log.debug("User existence check for {}: {}", email, exists);
+            return exists;
 
         } catch (Exception e) {
-            System.err.println("Error checking if user exists: " + e.getMessage());
+            log.error("Error checking if user exists for email: {}", email, e);
             return false;
         }
     }
 
-    //save user to supabase
     public boolean saveUser(Map<String, Object> user) {
         String url = supabaseUrl + "/users";
 
@@ -67,25 +76,24 @@ public class SupabaseService {
 
         try {
             ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
-            System.out.println("User inserted into Supabase: " + response.getStatusCode());
+            log.info("User inserted into Supabase: {}, Status: {}", user.get("email"), response.getStatusCode());
             return response.getStatusCode().is2xxSuccessful();
         } catch (org.springframework.web.client.HttpClientErrorException.Conflict e) {
-            System.out.println("User already exists in Supabase (caught http 409 conflict): " + user.get("email"));
+            log.warn("User already exists in Supabase: {}", user.get("email"));
             return false;
         } catch (Exception e) {
-            System.err.println("Error saving user to Supabase: " + e.getMessage());
+            log.error("Error saving user to Supabase: {}", user.get("email"), e);
             return false;
         }
     }
 
-     //create standardized headers for supabase API calls
     private HttpHeaders createHeaders() {
         HttpHeaders headers = new HttpHeaders();
         headers.set("apikey", serviceRoleKey);
         headers.set("Authorization", "Bearer " + serviceRoleKey);
         return headers;
     }
-    
+
     public List<Map<String, Object>> getAllUsers() {
         try {
             String url = supabaseUrl + "/users?select=user_id,username,email,contact_number,role,created_at&order=created_at.desc";
@@ -98,21 +106,21 @@ public class SupabaseService {
 
             String body = response.getBody();
             if (body == null || body.trim().isEmpty()) {
+                log.info("No users found in Supabase");
                 return Collections.emptyList();
             }
 
-            // Parse the JSON response into a list of maps
             List<Map<String, Object>> users = objectMapper.readValue(
                     body,
                     new TypeReference<List<Map<String, Object>>>(){}
             );
 
+            log.info("Fetched {} users from Supabase", users.size());
             return users;
 
         } catch (Exception e) {
-            System.err.println("Error fetching all users from Supabase: " + e.getMessage());
+            log.error("Error fetching all users from Supabase", e);
             return Collections.emptyList();
         }
     }
-
 }
