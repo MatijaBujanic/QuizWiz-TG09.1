@@ -1,3 +1,4 @@
+import AboutPage from "./pages/AboutPage";
 import AdminPage from "./pages/AdminPage";
 import AdminRoute from "./routes/AdminRoute";
 import Footer from "./components/Footer";
@@ -20,6 +21,7 @@ function App() {
           <Route path="/oauth2/success" element={<OAuth2Callback />} />
           <Route path="/home" element={<HomePage />}></Route>
           <Route path="/quizzes" element={<QuizzesPage />}></Route>
+          <Route path="/about" element={<AboutPage />}></Route>
           <Route
             path="/admin"
             element={
