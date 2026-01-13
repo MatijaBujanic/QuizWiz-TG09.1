@@ -6,8 +6,8 @@ import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/LoginPage";
 import Navbar from "./components/Navbar";
 import OAuth2Callback from "./pages/OAuth2Callback";
-import { Routes, Route } from "react-router-dom";
 import QuizzesPage from "./pages/QuizzesPage";
+import { Routes, Route } from "react-router-dom";
 
 function App() {
   return (
@@ -29,8 +29,8 @@ function App() {
             }
           ></Route>
         </Routes>
-        <Footer />
       </div>
+      <Footer />
     </div>
   );
 }
