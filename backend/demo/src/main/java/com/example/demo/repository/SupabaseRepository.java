@@ -85,6 +85,8 @@ public class SupabaseRepository {
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.set("Prefer", returnRepresentation ? "return=representation" : "return=minimal");
 
+            System.out.println("SUPABASE JSON: " + objectMapper.writeValueAsString(entity));
+
             HttpEntity<T> request = new HttpEntity<>(entity, headers);
 
             if (returnRepresentation) {
@@ -123,6 +125,23 @@ public class SupabaseRepository {
 
             HttpEntity<T> request = new HttpEntity<>(entity, headers);
 
+            restTemplate.exchange(url, HttpMethod.PATCH, request, Void.class);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to update in Supabase table: " + table, e);
+        }
+    }
+
+    public void update(String table, String idColumn, Object idValue, Map<String, Object> fields) {
+        try {
+            String encodedValue = encodeValue(idValue);
+            String url = supabaseUrl + "/" + table + "?" + idColumn + "=eq." + encodedValue;
+
+            HttpHeaders headers = createHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.set("Prefer", "return=minimal");
+
+            HttpEntity<Map<String, Object>> request = new HttpEntity<>(fields, headers);
             restTemplate.exchange(url, HttpMethod.PATCH, request, Void.class);
 
         } catch (Exception e) {
