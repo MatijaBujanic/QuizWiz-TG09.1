@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 /*import "./App.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
@@ -61,6 +62,12 @@ function App() {
 export default App;
 */
 
+=======
+import AdminPage from "./pages/AdminPage";
+import AdminRoute from "./routes/AdminRoute";
+import PublicRoute from "./routes/PublicRoute";
+import ProtectedRoute from "./routes/ProtectedRoute";
+>>>>>>> Stashed changes
 import Footer from "./components/Footer";
 import HomePage from "./pages/HomePage";
 import LandingPage from "./pages/LandingPage";
@@ -74,6 +81,7 @@ function App() {
   return (
     <>
       <Navbar />
+<<<<<<< Updated upstream
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
@@ -82,6 +90,49 @@ function App() {
       </Routes>
       <Footer />
     </>
+=======
+      <div className="flex-grow-1">
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <PublicRoute>
+                <LandingPage />
+              </PublicRoute>
+            }
+          />
+          <Route
+            path="/login"
+            element={
+              <PublicRoute>
+                <LoginPage />
+              </PublicRoute>
+            }
+          />
+          <Route path="/oauth2/success" element={<OAuth2Callback />} />
+          <Route
+            path="/home"
+            element={
+              <ProtectedRoute>
+                <HomePage />
+              </ProtectedRoute>
+            }
+          ></Route>
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute>
+                <AdminRoute>
+                  <AdminPage />
+                </AdminRoute>
+              </ProtectedRoute>
+            }
+          ></Route>
+        </Routes>
+        <Footer />
+      </div>
+    </div>
+>>>>>>> Stashed changes
   );
 }
 
