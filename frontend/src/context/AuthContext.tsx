@@ -25,7 +25,7 @@ function getEmailFromToken(token: string): string | null {
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [token, setToken] = useState<string | null>(() =>
+  /* const [token, setToken] = useState<string | null>(() =>
     localStorage.getItem("jwt_token")
   );
 
@@ -33,12 +33,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const [role, setRole] = useState<string | null>(() =>
     localStorage.getItem("role")
-  );
-  /*
+  ); */
+
   const [token, setToken] = useState<string | null>("DEV_TOKEN");
   const [role, setRole] = useState<string | null>("admin");
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(true);
-  */
+
   useEffect(() => {
     if (token) {
       localStorage.setItem("jwt_token", token);

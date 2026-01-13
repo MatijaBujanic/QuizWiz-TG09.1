@@ -52,6 +52,26 @@ function Navbar() {
                     Odjava
                   </button>
                 </li>
+                <li className="nav-item">
+                  <Link className="nav-link" to="/my-team">
+                    Tim
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <Link className="nav-link" to="/my-applications">
+                    Prijave
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <Link className="nav-link" to="/my-stats">
+                    Statistika
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <Link className="nav-link" to="/register">
+                    Registracija
+                  </Link>
+                </li>
               </>
             ) : (
               <li className="nav-item">

@@ -5,9 +5,13 @@ import Footer from "./components/Footer";
 import HomePage from "./pages/HomePage";
 import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/LoginPage";
+import MyApplicationsPage from "./pages/MyApplicationsPage";
+import MyStatsPage from "./pages/MyStatsPage";
+import MyTeamPage from "./pages/MyTeamPage";
 import Navbar from "./components/Navbar";
 import OAuth2Callback from "./pages/OAuth2Callback";
 import QuizzesPage from "./pages/QuizzesPage";
+import RegisterPage from "./pages/RegisterPage";
 import { Routes, Route } from "react-router-dom";
 
 function App() {
@@ -20,8 +24,12 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/oauth2/success" element={<OAuth2Callback />} />
           <Route path="/home" element={<HomePage />}></Route>
-          <Route path="/quizzes" element={<QuizzesPage />}></Route>
           <Route path="/about" element={<AboutPage />}></Route>
+          <Route path="/quizzes" element={<QuizzesPage />}></Route>
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/my-team" element={<MyTeamPage />} />
+          <Route path="/my-applications" element={<MyApplicationsPage />} />
+          <Route path="/my-stats" element={<MyStatsPage />} />
           <Route
             path="/admin"
             element={
