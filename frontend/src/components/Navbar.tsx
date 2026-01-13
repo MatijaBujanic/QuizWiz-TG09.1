@@ -36,7 +36,12 @@ function Navbar() {
               <>
                 <li className="nav-item">
                   <Link className="nav-link" to="/home">
-                    Home
+                    Početna
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <Link className="nav-link" to="/quizzes">
+                    Kvizevi
                   </Link>
                 </li>
                 <li className="nav-item">

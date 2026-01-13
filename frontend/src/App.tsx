@@ -7,6 +7,7 @@ import LoginPage from "./pages/LoginPage";
 import Navbar from "./components/Navbar";
 import OAuth2Callback from "./pages/OAuth2Callback";
 import { Routes, Route } from "react-router-dom";
+import QuizzesPage from "./pages/QuizzesPage";
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/oauth2/success" element={<OAuth2Callback />} />
           <Route path="/home" element={<HomePage />}></Route>
+          <Route path="/quizzes" element={<QuizzesPage />}></Route>
           <Route
             path="/admin"
             element={
