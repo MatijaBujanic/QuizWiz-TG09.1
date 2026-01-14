@@ -113,6 +113,35 @@ public class SupabaseRepository {
         }
     }
 
+    public <REQ, RES> RES insert(String table, REQ entity, Class<RES> responseType) {
+        try {
+            String url = supabaseUrl + "/" + table;
+
+            HttpHeaders headers = createHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.set("Prefer", "return=representation");
+
+            System.out.println("SUPABASE JSON: " + objectMapper.writeValueAsString(entity));
+
+            HttpEntity<REQ> request = new HttpEntity<>(entity, headers);
+
+            ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
+
+            if (response.getStatusCode() == HttpStatus.CREATED && response.getBody() != null) {
+                List<RES> results = objectMapper.readValue(
+                        response.getBody(),
+                        objectMapper.getTypeFactory().constructCollectionType(List.class, responseType)
+                );
+                return results.get(0);
+            }
+
+            throw new RuntimeException("Failed to insert entity to table: " + table);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to insert to Supabase table: " + table, e);
+        }
+    }
+
+
     // Update entity
     public <T> void update(String table, String idColumn, Object idValue, T entity) {
         try {
