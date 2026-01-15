@@ -18,6 +18,7 @@ public class Team {
     private Integer numberOfMembers;
 
     @JsonProperty("application_status")
+    private String applicationStatus;
 
     private Integer points;
     private Integer rank;
@@ -29,8 +30,10 @@ public class Team {
     private LocalDateTime approvedAt;
 
     @JsonProperty("created_by")
+    private Integer createdBy;
 
     @JsonProperty("quiz_id")
+    private Integer quizId;
 
     // NOVO: Polje za članove tima (stringovi)
     // U bazi će biti JSON array ili text
@@ -54,6 +57,7 @@ public class Team {
         this.quizId = quizId;
     }
 
+    // Getters & Setters
     public Integer getTeamId() { return teamId; }
     public void setTeamId(Integer teamId) { this.teamId = teamId; }
 
