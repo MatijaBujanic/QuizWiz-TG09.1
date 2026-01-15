@@ -74,7 +74,7 @@ function Navbar() {
                 >
                   <li>
                     <NavLink className={linkClass} to="/quizzes">
-                      Kvizevi
+                      Kvizovi
                     </NavLink>
                   </li>
                   <li>
