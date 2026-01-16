@@ -40,8 +40,20 @@ public class TeamService {
             throw new IllegalArgumentException("team_name is required");
         }
 
+        //check:isto ime tima na istom kvizu
+        String queryParams = "quiz_id=eq." + request.getQuizId();
+        List<Team> existingTeams =
+                supabaseRepository.findAll("team", queryParams, Team.class);
+
+        for (Team existing : existingTeams) {
+            if (existing.getTeamName() != null &&
+                    existing.getTeamName().equalsIgnoreCase(request.getTeamName().trim())) {
+                throw new RuntimeException("Već postoji tim s ovim imenom");
+            }
+        }
+
         Team team = new Team();
-        team.setTeamName(request.getTeamName());
+        team.setTeamName(request.getTeamName().trim());
         team.setQuizId(request.getQuizId());
         team.setCreatedBy(createdByUserId);
         team.setMembers(request.getMembers());
@@ -101,6 +113,21 @@ public class TeamService {
         // Ažuriraj broj članova ako su članovi promijenjeni
         if (request.getMembers() != null) {
             updates.put("number_of_members", request.getMembers().length);
+        }
+
+        // ak se mijenja ime tima, provjeri jel vec ima s istim imenom
+        if (request.getTeamName() != null) {
+            String queryParams = "quiz_id=eq." + existing.get().getQuizId();
+            List<Team> teams =
+                    supabaseRepository.findAll("team", queryParams, Team.class);
+
+            for (Team t : teams) {
+                if (!t.getTeamId().equals(teamId) &&
+                        t.getTeamName() != null &&
+                        t.getTeamName().equalsIgnoreCase(request.getTeamName().trim())) {
+                    throw new RuntimeException("Već postoji tim s ovim imenom");
+                }
+            }
         }
 
         supabaseRepository.update("team", "team_id", teamId, updates);
