@@ -260,4 +260,14 @@ public class TeamController {
 
         throw new RuntimeException("User not found in database");
     }
+ //ranking tima u kvizu
+ @GetMapping("/quiz/{quizId}/ranking")
+ public ResponseEntity<?> getQuizRanking(@PathVariable Integer quizId) {
+     return ResponseEntity.ok(Map.of(
+             "success", true,
+             "quizId", quizId,
+             "ranking", teamService.getQuizRanking(quizId)
+     ));
+ }
+
 }

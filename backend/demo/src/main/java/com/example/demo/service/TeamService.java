@@ -2,17 +2,16 @@ package com.example.demo.service;
 
 import com.example.demo.dto.CreateTeamRequest;
 import com.example.demo.dto.TeamResponse;
+import com.example.demo.dto.TeamResultRequest;
 import com.example.demo.dto.UpdateTeamRequest;
 import com.example.demo.model.Team;
 import com.example.demo.repository.SupabaseRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
 @Service
 public class TeamService {
 
@@ -58,7 +57,7 @@ public class TeamService {
         team.setCreatedBy(createdByUserId);
         team.setMembers(request.getMembers());
         team.setNumberOfMembers(request.getMembers() != null ? request.getMembers().length : 0);
-        team.setApplicationStatus("pending"); // Početni status
+        team.setApplicationStatus("pending");
         team.setSentAt(LocalDateTime.now());
         team.setPoints(0);
 
@@ -175,4 +174,72 @@ public class TeamService {
         response.setMembers(team.getMembers());
         return response;
     }
+
+    public void submitQuizResults(
+            Integer quizId,
+            List<TeamResultRequest> results,
+            Integer organizerId
+    ) {
+        if (results == null || results.isEmpty()) {
+            throw new RuntimeException("Results cannot be empty");
+        }
+
+        // Dohvati sve timove kviza
+        String queryParams = "quiz_id=eq." + quizId;
+        List<Team> teams = supabaseRepository.findAll("team", queryParams, Team.class);
+
+        if (teams.isEmpty()) {
+            throw new RuntimeException("No teams found for this quiz");
+        }
+
+        // Ažuriraj bodove koristeći UPSERT (zaobilazi PATCH problem)
+        for (TeamResultRequest r : results) {
+            Optional<Team> teamOpt = supabaseRepository.findByColumn("team", "team_id", r.getTeamId(), Team.class);
+
+            if (teamOpt.isEmpty()) {
+                throw new RuntimeException("Team not found: " + r.getTeamId());
+            }
+
+            Team team = teamOpt.get();
+            team.setPoints(r.getPoints());
+
+            // UPSERT
+            supabaseRepository.upsert("team", team);
+        }
+
+        // Ponovo dohvati timove s ažuriranim bodovima
+        teams = supabaseRepository.findAll("team", queryParams, Team.class);
+
+        // Sortiraj po bodovima
+        teams.sort((a, b) -> {
+            Integer aPoints = a.getPoints() != null ? a.getPoints() : 0;
+            Integer bPoints = b.getPoints() != null ? b.getPoints() : 0;
+            return bPoints.compareTo(aPoints);
+        });
+
+        // Dodijeli rank
+        int rank = 1;
+        Integer lastPoints = null;
+
+        for (Team team : teams) {
+            Integer currentPoints = team.getPoints() != null ? team.getPoints() : 0;
+
+            if (lastPoints != null && !currentPoints.equals(lastPoints)) {
+                rank++;
+            }
+
+            team.setRank(rank);
+            // UPSERT za rank također
+            supabaseRepository.upsert("team", team);
+
+            lastPoints = currentPoints;
+        }
+    }
+    public List<TeamResponse> getQuizRanking(Integer quizId) {
+        return getTeamsByQuiz(quizId).stream()
+                .sorted((a, b) -> b.getPoints().compareTo(a.getPoints()))
+                .toList();
+    }
+
+
 }

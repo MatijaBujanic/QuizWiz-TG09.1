@@ -213,4 +213,52 @@ public class SupabaseRepository {
         if (value == null) return "";
         return URLEncoder.encode(value.toString(), StandardCharsets.UTF_8);
     }
+
+    /**
+     * upsert - INSERT ili UPDATE ako već postoji (koristi POST s Prefer headerom)
+     * zaobilazi PATCH jer ga javin default htttpurlconnection ne podrzava :(
+     */
+    public <T> T upsert(String table, T entity) {
+        try {
+            String url = supabaseUrl + "/" + table;
+
+            HttpHeaders headers = createHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.set("Prefer", "resolution=merge-duplicates,return=representation");
+
+            String jsonPayload = objectMapper.writeValueAsString(entity);
+            System.out.println("=== SUPABASE UPSERT ===");
+            System.out.println("Table: " + table);
+            System.out.println("JSON: " + jsonPayload);
+
+            HttpEntity<T> request = new HttpEntity<>(entity, headers);
+
+            ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
+
+            System.out.println("Upsert successful - Status: " + response.getStatusCode());
+
+            if ((response.getStatusCode() == HttpStatus.CREATED || response.getStatusCode() == HttpStatus.OK)
+                    && response.getBody() != null) {
+
+                List<T> results = objectMapper.readValue(
+                        response.getBody(),
+                        objectMapper.getTypeFactory().constructCollectionType(List.class, (Class<T>) entity.getClass())
+                );
+                return results.get(0);
+            }
+
+            throw new RuntimeException("Failed to upsert entity to table: " + table);
+        //debug
+        } catch (org.springframework.web.client.HttpClientErrorException e) {
+            System.err.println("SUPABASE UPSERT ERROR");
+            System.err.println("Status: " + e.getStatusCode());
+            System.err.println("Response: " + e.getResponseBodyAsString());
+            throw new RuntimeException("Failed to upsert to Supabase table: " + table + " - " + e.getResponseBodyAsString(), e);
+        } catch (Exception e) {
+            System.err.println("GENERIC UPSERT ERROR");
+            e.printStackTrace();
+            throw new RuntimeException("Failed to upsert to Supabase table: " + table, e);
+        }
+    }
+
 }
