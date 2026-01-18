@@ -8,6 +8,8 @@ import com.example.demo.mapper.QuizMapper;
 import com.example.demo.model.Quiz;
 import com.example.demo.model.QuizRow;
 import com.example.demo.repository.SupabaseRepository;
+import com.example.demo.security.RequireRole;
+import com.example.demo.service.AuthenticationService;
 import com.example.demo.service.TeamService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpStatus;
@@ -25,23 +27,31 @@ public class OrganizerQuizController {
     private final SupabaseRepository supabase;
     private final ObjectMapper objectMapper;
     private final TeamService teamService;
+    private final AuthenticationService authenticationService;
 
     public OrganizerQuizController(
             SupabaseRepository supabase,
             ObjectMapper objectMapper,
-            TeamService teamService
+            TeamService teamService,
+            AuthenticationService authenticationService
     ) {
         this.supabase = supabase;
         this.objectMapper = objectMapper;
         this.teamService = teamService;
+        this.authenticationService = authenticationService;
     }
 
-    // TODO: privremeno hardcode dok ne spojiš auth -> organizerId
+    /**
+     * Vraća ID organizatora koji je trenutno prijavljen
+     * Ako korisnik nije prijavljen ili nije organizator, vraća null
+     */
     private Integer currentOrganizerId() {
-        return 2;
+        Long userId = authenticationService.getCurrentUserId();
+        return userId != null ? userId.intValue() : null;
     }
 
     @GetMapping
+    @RequireRole({"ORGANIZER", "ADMIN"})
     public List<QuizResponse> myQuizzes() {
         String qp = "organizer_id=eq." + currentOrganizerId() + "&order=date.asc,time.asc";
         return supabase.findAll("quiz", qp, Quiz.class).stream()
@@ -50,6 +60,7 @@ public class OrganizerQuizController {
     }
 
     @PostMapping
+    @RequireRole({"ORGANIZER", "ADMIN"})
     public ResponseEntity<QuizResponse> create(@RequestBody CreateQuizRequest req) {
         QuizRow row = QuizMapper.toRow(req);
         row.setOrganizerId(currentOrganizerId());
@@ -59,11 +70,12 @@ public class OrganizerQuizController {
     }
 
     @PatchMapping("/{id}")
+    @RequireRole({"ORGANIZER", "ADMIN"})
     public ResponseEntity<Void> patch(
             @PathVariable Integer id,
             @RequestBody QuizUpdateRequest req
     ) {
-        var quizOpt = supabase.findByColumn("quiz", "quiz_id", id, Quiz.class);
+        var quizOpt = supabase.findByColumn("quiz", "quiz_id", id, QuizRow.class);
         if (quizOpt.isEmpty() || !Objects.equals(quizOpt.get().getOrganizerId(), currentOrganizerId())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
@@ -82,8 +94,9 @@ public class OrganizerQuizController {
     }
 
     @DeleteMapping("/{id}")
+    @RequireRole({"ORGANIZER", "ADMIN"})
     public ResponseEntity<Void> delete(@PathVariable Integer id) {
-        var quizOpt = supabase.findByColumn("quiz", "quiz_id", id, Quiz.class);
+        var quizOpt = supabase.findByColumn("quiz", "quiz_id", id, QuizRow.class);
         if (quizOpt.isEmpty()
                 || !Objects.equals(quizOpt.get().getOrganizerId(), currentOrganizerId())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
@@ -94,13 +107,14 @@ public class OrganizerQuizController {
     }
 
     @PostMapping("/{quizId}/results")
+    @RequireRole({"ORGANIZER", "ADMIN"})
     public ResponseEntity<?> submitResults(
             @PathVariable Integer quizId,
-            @RequestBody List<TeamResultRequest> results,
-            @RequestParam Integer organizerId // kasnije OAuth
+            @RequestBody List<TeamResultRequest> results
     ) {
 
         try {
+            Integer organizerId = currentOrganizerId();
             teamService.submitQuizResults(quizId, results, organizerId);
 
             return ResponseEntity.ok(Map.of(
