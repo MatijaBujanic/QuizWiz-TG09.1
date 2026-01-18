@@ -3,8 +3,9 @@ package com.example.demo.controller;
 import com.example.demo.dto.CreateUserRequest;
 import com.example.demo.model.Users;
 import com.example.demo.repository.SupabaseRepository;
+import com.example.demo.security.RequireRole;
+import com.example.demo.service.AuthenticationService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -14,14 +15,16 @@ import java.util.*;
 public class AdminController {
 
     private final SupabaseRepository supabaseRepository;
+    private final AuthenticationService authenticationService;
 
-    public AdminController(SupabaseRepository supabaseRepository) {
+    public AdminController(SupabaseRepository supabaseRepository, AuthenticationService authenticationService) {
         this.supabaseRepository = supabaseRepository;
+        this.authenticationService = authenticationService;
         System.out.println("AdminController initialized with SupabaseRepository");
     }
 
     @PostMapping("/createuser")
-    @PreAuthorize("hasRole('admin')")
+    @RequireRole({"ADMIN"})
     public ResponseEntity<?> createUser(@RequestBody CreateUserRequest request) {
         System.out.println("POST /api/admin/createuser: " + request.getUsername() + ", " + request.getEmail());
 
@@ -81,7 +84,7 @@ public class AdminController {
     }
 
     @GetMapping("/users")
-    @PreAuthorize("hasRole('admin')")
+    @RequireRole({"ADMIN"})
     public ResponseEntity<?> getAllUsers() {
         System.out.println("GET /api/admin/users");
 
@@ -121,7 +124,7 @@ public class AdminController {
     }
 
     @DeleteMapping("/users/{userId}")
-    @PreAuthorize("hasRole('admin')")
+    @RequireRole({"ADMIN"})
     public ResponseEntity<?> deleteUser(@PathVariable String userId) {
         System.out.println("DELETE /api/admin/users/" + userId);
 
