@@ -40,6 +40,13 @@ public class QuizResponse {
     @JsonProperty("location_id")
     private Integer locationId;
 
+    // Polja za ocjene
+    @JsonProperty("average_rating")
+    private Double averageRating;
+
+    @JsonProperty("rating_count")
+    private Integer ratingCount;
+
     public QuizResponse() {}
 
     // getters/setters
@@ -81,4 +88,10 @@ public class QuizResponse {
 
     public Integer getLocationId() { return locationId; }
     public void setLocationId(Integer locationId) { this.locationId = locationId; }
+
+    public Double getAverageRating() { return averageRating; }
+    public void setAverageRating(Double averageRating) { this.averageRating = averageRating; }
+
+    public Integer getRatingCount() { return ratingCount; }
+    public void setRatingCount(Integer ratingCount) { this.ratingCount = ratingCount; }
 }

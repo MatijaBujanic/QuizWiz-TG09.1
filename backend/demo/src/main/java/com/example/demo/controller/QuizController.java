@@ -1,11 +1,11 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.QuizRatingResponse;
 import com.example.demo.dto.QuizResponse;
 import com.example.demo.mapper.QuizMapper;
-import com.example.demo.model.Quiz;
 import com.example.demo.model.QuizRow;
 import com.example.demo.repository.SupabaseRepository;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.example.demo.service.QuizRatingService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,9 +18,11 @@ import java.util.*;
 public class QuizController {
 
     private final SupabaseRepository supabase;
+    private final QuizRatingService ratingService;
 
-    public QuizController(SupabaseRepository supabase) {
+    public QuizController(SupabaseRepository supabase, QuizRatingService ratingService) {
         this.supabase = supabase;
+        this.ratingService = ratingService;
     }
 
     @GetMapping("/ping")
@@ -32,19 +34,53 @@ public class QuizController {
             @RequestParam(required = false) String theme,
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String dateFrom,
-            @RequestParam(required = false) String dateTo
+            @RequestParam(required = false) String dateTo,
+            @RequestParam(required = false) Integer userId // Za user-specific rating
     ) {
         String qp = buildQuery(name, theme, status, dateFrom, dateTo);
         List<QuizRow> quizzes = supabase.findAll("quiz", qp, QuizRow.class);
-        return quizzes.stream().map(QuizMapper::toResponse).toList();
+
+        // Mapa svaki quiz u response i dodaj ocjene
+        return quizzes.stream()
+                .map(QuizMapper::toResponse)
+                .map(quizResponse -> enrichWithRating(quizResponse, userId))
+                .toList();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<QuizResponse> get(@PathVariable Integer id) {
+    public ResponseEntity<QuizResponse> get(
+            @PathVariable Integer id,
+            @RequestParam(required = false) Integer userId) {
+
         return supabase.findByColumn("quiz", "quiz_id", id, QuizRow.class)
                 .map(QuizMapper::toResponse)
+                .map(quizResponse -> enrichWithRating(quizResponse, userId))
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    /**
+     * Helper metoda koja dodaje rating podatke u QuizResponse
+     */
+    private QuizResponse enrichWithRating(QuizResponse quizResponse, Integer userId) {
+        try {
+            QuizRatingResponse rating = ratingService.getQuizRating(
+                    quizResponse.getQuizId(),
+                    userId
+            );
+
+            quizResponse.setAverageRating(rating.getAverageRating());
+            quizResponse.setRatingCount(rating.getRatingCount());
+
+        } catch (Exception e) {
+            // Ako nešto ne uspije, postavi default vrijednosti
+            System.err.println("Error fetching rating for quiz " +
+                    quizResponse.getQuizId() + ": " + e.getMessage());
+            quizResponse.setAverageRating(0.0);
+            quizResponse.setRatingCount(0);
+        }
+
+        return quizResponse;
     }
 
     // helpers
