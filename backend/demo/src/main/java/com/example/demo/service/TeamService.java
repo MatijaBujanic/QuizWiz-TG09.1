@@ -95,43 +95,53 @@ public class TeamService {
      * Ažurira tim (samo kreator može)
      */
     public TeamResponse updateTeam(Integer teamId, UpdateTeamRequest request, Integer userId) {
-        // Provjeri da li je korisnik kreator tima
         Optional<Team> existing = supabaseRepository.findByColumn("team", "team_id", teamId, Team.class);
 
         if (existing.isEmpty()) {
             throw new RuntimeException("Team not found");
         }
 
-        if (!existing.get().getCreatedBy().equals(userId)) {
+        Team team = existing.get();
+
+        if (!team.getCreatedBy().equals(userId)) {
             throw new RuntimeException("Only team creator can update team");
         }
 
-        Map<String, Object> updates = objectMapper.convertValue(request, Map.class);
-        updates.entrySet().removeIf(e -> e.getValue() == null);
+        boolean hasChanges = false;
 
-        // Ažuriraj broj članova ako su članovi promijenjeni
-        if (request.getMembers() != null) {
-            updates.put("number_of_members", request.getMembers().length);
-        }
-
-        // ak se mijenja ime tima, provjeri jel vec ima s istim imenom
-        if (request.getTeamName() != null) {
-            String queryParams = "quiz_id=eq." + existing.get().getQuizId();
-            List<Team> teams =
-                    supabaseRepository.findAll("team", queryParams, Team.class);
+        // Ažuriraj ime tima
+        if (request.getTeamName() != null && !request.getTeamName().trim().isEmpty()) {
+            // Provjeri duple imena timova
+            String queryParams = "quiz_id=eq." + team.getQuizId();
+            List<Team> teams = supabaseRepository.findAll("team", queryParams, Team.class);
 
             for (Team t : teams) {
                 if (!t.getTeamId().equals(teamId) &&
                         t.getTeamName() != null &&
                         t.getTeamName().equalsIgnoreCase(request.getTeamName().trim())) {
-                    throw new RuntimeException("Već postoji tim s ovim imenom");
+                    throw new RuntimeException("Već postoji tim s ovim imenom na ovom kvizu");
                 }
             }
+
+            team.setTeamName(request.getTeamName().trim());
+            hasChanges = true;
         }
 
-        supabaseRepository.update("team", "team_id", teamId, updates);
+        // Ažuriraj članove
+        if (request.getMembers() != null) {
+            team.setMembers(request.getMembers());
+            team.setNumberOfMembers(request.getMembers().length);
+            hasChanges = true;
+        }
 
-        return getTeamById(teamId).orElseThrow();
+        if (!hasChanges) {
+            throw new RuntimeException("Nothing to update");
+        }
+
+        // upsert, ne patch
+        supabaseRepository.upsert("team", team);
+
+        return mapToResponse(team);
     }
 
     /**
