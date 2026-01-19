@@ -1,7 +1,12 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.QuizHistoryResponse;
+import com.example.demo.dto.QuizResponse;
 import com.example.demo.dto.UpdateMeRequest;
 import com.example.demo.model.Users;
+import com.example.demo.security.RequireRole;
+import com.example.demo.service.AuthenticationService;
+import com.example.demo.service.QuizHistoryService;
 import com.example.demo.service.UsersService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -19,9 +25,13 @@ import java.util.Map;
 public class UsersController {
 
     private final UsersService usersService;
+    private final AuthenticationService authenticationService;
+    private final QuizHistoryService quizHistoryService;
 
-    public UsersController(UsersService usersService) {
+    public UsersController(UsersService usersService, AuthenticationService authenticationService, QuizHistoryService quizHistoryService) {
         this.usersService = usersService;
+        this.authenticationService = authenticationService;
+        this.quizHistoryService = quizHistoryService;
     }
 
     @GetMapping("/me")
@@ -73,4 +83,24 @@ public class UsersController {
         return ResponseEntity.ok(usersService.save(user));
     }
 
+    /**
+     * Dohvaća povijest kvizova na kojima je korisnik sudjelovao
+     * Dostupno za sve autentizirane korisnike
+     */
+    @GetMapping("/me/quiz-history")
+    public ResponseEntity<List<QuizHistoryResponse>> getMyQuizHistory() {
+        List<QuizHistoryResponse> history = quizHistoryService.getUserQuizHistory();
+        return ResponseEntity.ok(history);
+    }
+
+    /**
+     * Dohvaća sve kvizove koje je organizer organizirao
+     * Dostupno samo za ORGANIZER i ADMIN uloge
+     */
+    @GetMapping("/me/organized-quizzes")
+    @RequireRole({"ORGANIZER", "ADMIN"})
+    public ResponseEntity<List<QuizHistoryResponse>> getOrganizerQuizzes() {
+        List<QuizHistoryResponse> history = quizHistoryService.getOrganizerQuizHistory();
+        return ResponseEntity.ok(history);
+    }
 }
