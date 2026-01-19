@@ -12,6 +12,7 @@ public class LocationResponse {
 
     private String address;
     private Integer capacity;
+    private String city;
 
     public LocationResponse() {}
 
@@ -26,5 +27,8 @@ public class LocationResponse {
 
     public Integer getCapacity() { return capacity; }
     public void setCapacity(Integer capacity) { this.capacity = capacity; }
+
+    public String getCity() { return city; }
+    public void setCity(String city) { this.city = city; }
 }
 

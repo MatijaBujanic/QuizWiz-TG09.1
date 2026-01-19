@@ -13,17 +13,20 @@ public class Location {
     private String locationName;
 
     private String address;
+    
+    private String city;
 
     private Integer capacity;
 
     public Location() {}
 
     public Location(Integer locationId, String locationName,
-                    String address, Integer capacity) {
+                    String address, Integer capacity, String city) {
         this.locationId = locationId;
         this.locationName = locationName;
         this.address = address;
         this.capacity = capacity;
+        this.city = city;
     }
 
     public Integer getLocationId() { return locationId; }
@@ -37,4 +40,8 @@ public class Location {
 
     public Integer getCapacity() { return capacity; }
     public void setCapacity(Integer capacity) { this.capacity = capacity; }
+
+    public String getCity() { return city; }
+    public void setCity(String city) { this.city = city; }
+
 }

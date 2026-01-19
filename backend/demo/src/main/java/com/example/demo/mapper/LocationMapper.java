@@ -13,6 +13,7 @@ public class LocationMapper {
         r.setLocationName(l.getLocationName());
         r.setAddress(l.getAddress());
         r.setCapacity(l.getCapacity());
+        r.setCity(l.getCity());
         return r;
     }
     public static LocationRow toRow(CreateLocationRequest r) {
@@ -20,6 +21,7 @@ public class LocationMapper {
         row.setLocationName(r.getLocationName());
         row.setAddress(r.getAddress());
         row.setCapacity(r.getCapacity());
+        row.setCity(r.getCity());
         return row;
     }
 
