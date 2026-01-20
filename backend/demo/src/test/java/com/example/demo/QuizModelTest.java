@@ -27,4 +27,23 @@ class QuizModelTest {
         assertEquals(100, quiz.getMaxPoints());
         assertEquals(1, quiz.getOrganizerId());
     }
+
+    @Test
+    void testQuizEdgeCases() {
+        // Rubni slučajevi s null i praznim vrijednostima
+        Quiz quiz = new Quiz();
+        quiz.setQuizName(null);
+        quiz.setQuizTheme("");
+        quiz.setNumberOfRounds(0);
+        quiz.setMaxPoints(0);
+        quiz.setOrganizerId(null);
+
+        // Provjera rubnih slučajeva
+        assertNull(quiz.getQuizName());
+        assertEquals("", quiz.getQuizTheme());
+        assertEquals(0, quiz.getNumberOfRounds());
+        assertEquals(0, quiz.getMaxPoints());
+        assertNull(quiz.getOrganizerId());
+    }
+
 }

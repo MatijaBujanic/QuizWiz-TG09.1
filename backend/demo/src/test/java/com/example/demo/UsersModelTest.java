@@ -25,4 +25,25 @@ class UsersModelTest {
         assertEquals("1234567890", user.getContact_number());
         assertEquals("Admin", user.getRole());
     }
+
+    @Test
+    void testUsersEdgeCases() {
+        // Test edge cases with null and empty values
+        Users user = new Users();
+        user.setUserId(null);
+        user.setUsername("");
+        user.setEmail(null);
+        user.setPassword("");
+        user.setContact_number(null);
+        user.setRole("");
+
+        // Assert edge case values
+        assertNull(user.getUserId());
+        assertEquals("", user.getUsername());
+        assertNull(user.getEmail());
+        assertEquals("", user.getPassword());
+        assertNull(user.getContact_number());
+        assertEquals("", user.getRole());
+    }
+
 }
