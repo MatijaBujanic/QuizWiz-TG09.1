@@ -28,7 +28,7 @@ class UsersModelTest {
 
     @Test
     void testUsersEdgeCases() {
-        // Test edge cases with null and empty values
+        // Rubni slučaj s null i praznim vrijednostima
         Users user = new Users();
         user.setUserId(null);
         user.setUsername("");
@@ -37,13 +37,27 @@ class UsersModelTest {
         user.setContact_number(null);
         user.setRole("");
 
-        // Assert edge case values
         assertNull(user.getUserId());
         assertEquals("", user.getUsername());
         assertNull(user.getEmail());
         assertEquals("", user.getPassword());
         assertNull(user.getContact_number());
         assertEquals("", user.getRole());
+    }
+
+    @Test
+    void testUsersWithSpecialCharacters() {
+        // Rubni slučaj korisnik s posebnim znakovima
+        Users user = new Users();
+        user.setUsername("Ivan_Ivić@#$%");
+        user.setEmail("test+tag@example.com");
+        user.setPassword("P@ssw0rd!#$");
+        user.setRole("admin-user");
+
+        assertEquals("Ivan_Ivić@#$%", user.getUsername());
+        assertEquals("test+tag@example.com", user.getEmail());
+        assertEquals("P@ssw0rd!#$", user.getPassword());
+        assertEquals("admin-user", user.getRole());
     }
 
 }

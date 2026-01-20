@@ -21,4 +21,16 @@ class AdminServiceExceptionTest {
         });
     }
 
+    @Test
+    void testCreateUserThrowsExceptionOnNullUsername() {
+        // Testiranje baca li se exception kada je korisničko ime null
+        UserService userService = mock(UserService.class);
+        SupabaseService supabaseService = mock(SupabaseService.class);
+        AdminService adminService = new AdminService(userService, supabaseService);
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            adminService.createUser(null, "test@example.com");
+        });
+    }
+
 }

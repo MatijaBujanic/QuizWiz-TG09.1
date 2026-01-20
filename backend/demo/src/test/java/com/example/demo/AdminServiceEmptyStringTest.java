@@ -20,4 +20,18 @@ class AdminServiceEmptyStringTest {
             adminService.createUser("", "test@example.com");
         });
     }
+
+    @Test
+    void testCreateUserThrowsExceptionWhenEmailAlreadyExists() {
+        // Testiranje baca li se exception kada email već postoji
+        UserService userService = mock(UserService.class);
+        SupabaseService supabaseService = mock(SupabaseService.class);
+        AdminService adminService = new AdminService(userService, supabaseService);
+
+        when(userService.existsByEmail("existing@example.com")).thenReturn(true);
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            adminService.createUser("newuser", "existing@example.com");
+        });
+    }
 }
