@@ -46,4 +46,17 @@ class QuizModelTest {
         assertNull(quiz.getOrganizerId());
     }
 
+    @Test
+    void testQuizWithLargeValues() {
+        // Rubni slučaj: quiz s vrlo velikim vrijednostima
+        Quiz quiz = new Quiz();
+        quiz.setNumberOfRounds(1000);
+        quiz.setMaxPoints(999999);
+        quiz.setOrganizerId(Integer.MAX_VALUE);
+
+        assertEquals(1000, quiz.getNumberOfRounds());
+        assertEquals(999999, quiz.getMaxPoints());
+        assertEquals(Integer.MAX_VALUE, quiz.getOrganizerId());
+    }
+
 }
