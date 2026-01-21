@@ -1,4 +1,4 @@
-import { Wrapper, Status } from "@googlemaps/react-wrapper";
+import { Wrapper } from "@googlemaps/react-wrapper";
 import { useRef, useEffect } from "react";
 
 // Declare global google object
@@ -7,17 +7,6 @@ declare global {
     google: any;
   }
 }
-
-const render = (status: Status) => {
-  switch (status) {
-    case Status.LOADING:
-      return <div>Loading...</div>;
-    case Status.FAILURE:
-      return <div>Error loading map</div>;
-    case Status.SUCCESS:
-      return <div>Map loaded successfully</div>;
-  }
-};
 
 interface MapProps {
   center: { lat: number; lng: number };
@@ -70,7 +59,7 @@ export default function GoogleMap({
   onLocationSelect 
 }: GoogleMapProps) {
   return (
-    <Wrapper apiKey={apiKey} render={render}>
+    <Wrapper apiKey={apiKey}>
       <MyMapComponent 
         center={center} 
         zoom={zoom} 
