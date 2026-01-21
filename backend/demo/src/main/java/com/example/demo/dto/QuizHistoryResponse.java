@@ -1,12 +1,11 @@
 package com.example.demo.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
 
-public class QuizResponse {
+public class QuizHistoryResponse {
 
     @JsonProperty("quiz_id")
     private Integer quizId;
@@ -16,9 +15,6 @@ public class QuizResponse {
 
     @JsonProperty("quiz_theme")
     private String quizTheme;
-
-    @JsonProperty("application_type")
-    private String applicationType;
 
     private LocalDate date;
     private LocalTime time;
@@ -31,25 +27,21 @@ public class QuizResponse {
     @JsonProperty("max_points")
     private Integer maxPoints;
 
-    @JsonProperty("created_at")
-    private LocalDateTime createdAt;
-
-    @JsonProperty("organizer_id")
-    private Integer organizerId;
-
     @JsonProperty("location_id")
     private Integer locationId;
 
-    // Polja za ocjene
-    @JsonProperty("average_rating")
-    private Double averageRating;
+    @JsonProperty("location_name")
+    private String locationName;
 
-    @JsonProperty("rating_count")
-    private Integer ratingCount;
+    // Lista timova koji su sudjelovali (samo ako je organizer)
+    private List<TeamHistoryResponse> teams;
 
-    public QuizResponse() {}
+    // Tim na kojem je korisnik sudjelovao (samo ako je user)
+    @JsonProperty("user_team")
+    private TeamHistoryResponse userTeam;
 
-    // getters/setters
+    public QuizHistoryResponse() {}
+
     public Integer getQuizId() { return quizId; }
     public void setQuizId(Integer quizId) { this.quizId = quizId; }
 
@@ -58,9 +50,6 @@ public class QuizResponse {
 
     public String getQuizTheme() { return quizTheme; }
     public void setQuizTheme(String quizTheme) { this.quizTheme = quizTheme; }
-
-    public String getApplicationType() { return applicationType; }
-    public void setApplicationType(String applicationType) { this.applicationType = applicationType; }
 
     public LocalDate getDate() { return date; }
     public void setDate(LocalDate date) { this.date = date; }
@@ -80,18 +69,16 @@ public class QuizResponse {
     public Integer getMaxPoints() { return maxPoints; }
     public void setMaxPoints(Integer maxPoints) { this.maxPoints = maxPoints; }
 
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
-
-    public Integer getOrganizerId() { return organizerId; }
-    public void setOrganizerId(Integer organizerId) { this.organizerId = organizerId; }
-
     public Integer getLocationId() { return locationId; }
     public void setLocationId(Integer locationId) { this.locationId = locationId; }
 
-    public Double getAverageRating() { return averageRating; }
-    public void setAverageRating(Double averageRating) { this.averageRating = averageRating; }
+    public String getLocationName() { return locationName; }
+    public void setLocationName(String locationName) { this.locationName = locationName; }
 
-    public Integer getRatingCount() { return ratingCount; }
-    public void setRatingCount(Integer ratingCount) { this.ratingCount = ratingCount; }
+    public List<TeamHistoryResponse> getTeams() { return teams; }
+    public void setTeams(List<TeamHistoryResponse> teams) { this.teams = teams; }
+
+    public TeamHistoryResponse getUserTeam() { return userTeam; }
+    public void setUserTeam(TeamHistoryResponse userTeam) { this.userTeam = userTeam; }
 }
+
