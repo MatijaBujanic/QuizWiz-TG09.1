@@ -57,6 +57,16 @@ function App() {
             }
           ></Route>
           <Route
+            path="/edit-quiz/:id"
+            element={
+              <ProtectedRoute>
+                <OrganizerRoute>
+                  <CreateQuizPage />
+                </OrganizerRoute>
+              </ProtectedRoute>
+            }
+          ></Route>
+          <Route
             path="/my-quizzes"
             element={
               <ProtectedRoute>

@@ -4,4 +4,6 @@ export type Location = {
   address: string;
   city: string | null;
   capacity: number;
+  latitude: number | null;
+  longitude: number | null;
 };

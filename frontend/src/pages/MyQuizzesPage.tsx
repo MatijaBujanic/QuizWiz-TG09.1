@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 interface Quiz {
@@ -24,9 +25,45 @@ const axiosInstance = axios.create({
 
 const MyQuizzesPage: React.FC = () => {
   const { token } = useAuth();
+  const navigate = useNavigate();
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const handleDelete = async (quizId: number) => {
+    if (!window.confirm('Jeste li sigurni da želite obrisati ovaj kviz?')) {
+      return;
+    }
+
+    try {
+      await axiosInstance.delete(`/api/organizer/quizzes/${quizId}`);
+      
+      // Ukloni kviz iz state-a
+      setQuizzes(prev => prev.filter(q => q.quiz_id !== quizId));
+      
+      // Ukloni iz lokalnog cache-a ako postoji
+      try {
+        const localRaw = localStorage.getItem('local_created_quizzes');
+        if (localRaw) {
+          const localQuizzes = JSON.parse(localRaw);
+          const updated = localQuizzes.filter((q: Quiz) => q.quiz_id !== quizId);
+          localStorage.setItem('local_created_quizzes', JSON.stringify(updated));
+        }
+      } catch (cacheErr) {
+        console.warn('Could not update local cache', cacheErr);
+      }
+      
+      alert('Kviz je uspješno obrisan!');
+    } catch (err: any) {
+      console.error('Greška pri brisanju kviza:', err);
+      alert(err.response?.data?.message || 'Greška pri brisanju kviza');
+    }
+  };
+
+  const handleEdit = (quizId: number) => {
+    // Navigiraj na edit stranicu (može biti novi route ili postojeći CreateQuizPage s edit modom)
+    navigate(`/edit-quiz/${quizId}`);
+  };
 
   useEffect(() => {
     const fetchQuizzes = async () => {
@@ -155,8 +192,18 @@ const MyQuizzesPage: React.FC = () => {
                   </div>
                 </div>
                 <div className="card-footer bg-white">
-                  <button className="btn btn-sm btn-primary me-2">Uredi</button>
-                  <button className="btn btn-sm btn-danger">Obriši</button>
+                  <button 
+                    className="btn btn-sm btn-primary me-2"
+                    onClick={() => handleEdit(quiz.quiz_id)}
+                  >
+                    Uredi
+                  </button>
+                  <button 
+                    className="btn btn-sm btn-danger"
+                    onClick={() => handleDelete(quiz.quiz_id)}
+                  >
+                    Obriši
+                  </button>
                 </div>
               </div>
             </div>

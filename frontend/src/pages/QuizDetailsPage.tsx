@@ -52,6 +52,10 @@ export default function QuizDetailsPage() {
   const [quiz, setQuiz] = useState<Quiz | null>(null);
   const [location, setLocation] = useState<Location | null>(null);
   const [error, setError] = useState("");
+  const [geocodedLocation, setGeocodedLocation] = useState<{
+    lat: number;
+    lng: number;
+  } | null>(null);
 
   const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string;
   const mapCenter = useMemo(() => ({ lat: 45.815, lng: 15.9819 }), []);
@@ -70,6 +74,47 @@ export default function QuizDetailsPage() {
       }),
     [],
   );
+
+  useEffect(() => {
+    const geocodeAddress = async () => {
+      if (!location?.address || !apiKey) {
+        setGeocodedLocation(null);
+        return;
+      }
+
+      try {
+        // Sastavi precizniji upit za geocoding
+        let geocodeQuery = location.address;
+        if (location.city) {
+          geocodeQuery += `, ${location.city}, Croatia`;
+        } else {
+          geocodeQuery += `, Croatia`;
+        }
+
+        const response = await fetch(
+          `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(geocodeQuery)}&key=${apiKey}&language=hr&region=hr`,
+        );
+        const data = await response.json();
+        if (data.results && data.results.length > 0) {
+          const { lat, lng } = data.results[0].geometry.location;
+          setGeocodedLocation({ lat, lng });
+          console.log("Geocoded location:", {
+            lat,
+            lng,
+            address: geocodeQuery,
+          });
+        } else {
+          console.warn("No geocoding results for:", geocodeQuery);
+          setGeocodedLocation(null);
+        }
+      } catch (error) {
+        console.error("Geocoding error:", error);
+        setGeocodedLocation(null);
+      }
+    };
+
+    geocodeAddress();
+  }, [location, apiKey]);
 
   useEffect(() => {
     const loadMe = async () => {
@@ -367,8 +412,29 @@ export default function QuizDetailsPage() {
               <h5 className="mb-3">Karta</h5>
 
               <div style={{ height: 280 }}>
-                <GoogleMap apiKey={apiKey} center={mapCenter} zoom={13} />
+                <GoogleMap
+                  apiKey={apiKey}
+                  center={geocodedLocation || mapCenter}
+                  zoom={geocodedLocation ? 15 : 13}
+                  marker={
+                    geocodedLocation
+                      ? {
+                          lat: geocodedLocation.lat,
+                          lng: geocodedLocation.lng,
+                          title: location?.location_name || "Lokacija kviza",
+                        }
+                      : undefined
+                  }
+                />
               </div>
+
+              {location && (
+                <div className="text-muted small mt-2">
+                  📍 {location.location_name}
+                  {location.address && ` - ${location.address}`}
+                  {location.city && `, ${location.city}`}
+                </div>
+              )}
             </div>
           </div>
 
