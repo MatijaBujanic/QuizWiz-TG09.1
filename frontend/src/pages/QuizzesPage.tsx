@@ -1,49 +1,51 @@
-import { useState } from "react";
-import QuizCard from "../components/QuizCard";
-import { quizzes } from "../fake/quizzes"; // const response = await fetch("/api/quizzes");
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import api from "../api/api";
+import { type Quiz } from "../types/Quiz";
 
 function startOfDay(d: Date) {
   return new Date(d.getFullYear(), d.getMonth(), d.getDate());
 }
 
 function QuizzesPage() {
+  const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [search, setSearch] = useState("");
-  const [location, setLocation] = useState("All");
   const [upcomingOnly, setUpcomingOnly] = useState(true);
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [nearestFirst, setNearestFirst] = useState(true);
 
-  const locations = [
-    "All",
-    ...Array.from(new Set(quizzes.map((q) => q.location))),
-  ];
+  const navigate = useNavigate();
 
-  function parseQuizDate(dateStr: string) {
-    return new Date(dateStr.replace(" ", "T"));
-  }
+  useEffect(() => {
+    api
+      .get("/api/quizzes")
+      .then((res) => {
+        console.log("Quizzes:", res.data);
+        setQuizzes(res.data);
+      })
+      .catch(console.error);
+  }, []);
 
   const todayStart = startOfDay(new Date());
 
   const filteredQuizzes = quizzes
     .filter((q) => {
-      const qDate = parseQuizDate(q.date);
+      const qDate = new Date(q.date);
 
       if (search.trim()) {
-        const s = search.trim().toLowerCase();
-        const inTitle = q.title.toLowerCase().includes(s);
-        const inDesc = q.description.toLowerCase().includes(s);
-        if (!inTitle && !inDesc) return false;
+        const s = search.toLowerCase();
+        if (
+          !q.quiz_name.toLowerCase().includes(s) &&
+          !q.quiz_theme.toLowerCase().includes(s)
+        ) {
+          return false;
+        }
       }
-
-      if (location !== "All" && q.location !== location) return false;
 
       if (upcomingOnly && qDate < todayStart) return false;
 
-      if (fromDate) {
-        const f = new Date(fromDate);
-        if (qDate < startOfDay(f)) return false;
-      }
+      if (fromDate && qDate < startOfDay(new Date(fromDate))) return false;
       if (toDate) {
         const t = new Date(toDate);
         const tEnd = new Date(
@@ -52,7 +54,7 @@ function QuizzesPage() {
           t.getDate(),
           23,
           59,
-          59
+          59,
         );
         if (qDate > tEnd) return false;
       }
@@ -60,8 +62,8 @@ function QuizzesPage() {
       return true;
     })
     .sort((a, b) => {
-      const da = parseQuizDate(a.date).getTime();
-      const db = parseQuizDate(b.date).getTime();
+      const da = new Date(a.date).getTime();
+      const db = new Date(b.date).getTime();
       return nearestFirst ? da - db : db - da;
     });
 
@@ -73,81 +75,163 @@ function QuizzesPage() {
         <div className="row g-2 align-items-center">
           <div className="col-auto" style={{ minWidth: 220 }}>
             <input
-              type="text"
               className="form-control"
-              placeholder="Pretraži naslov ili opis"
+              placeholder="Pretraži naziv ili temu"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
 
-          <div className="col-auto">
-            <select
-              className="form-select"
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-            >
-              {locations.map((loc) => (
-                <option key={loc} value={loc}>
-                  {loc}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="col-auto">
-            <div className="form-check">
-              <input
-                className="form-check-input"
-                type="checkbox"
-                id="upcomingOnly"
-                checked={upcomingOnly}
-                onChange={(e) => setUpcomingOnly(e.target.checked)}
-              />
-              <label className="form-check-label" htmlFor="upcomingOnly">
-                Nadolazeći
-              </label>
-            </div>
-          </div>
-
-          <div className="col-auto">
-            <div className="form-check">
-              <input
-                className="form-check-input"
-                type="checkbox"
-                id="nearestFirst"
-                checked={nearestFirst}
-                onChange={(e) => setNearestFirst(e.target.checked)}
-              />
-              <label className="form-check-label" htmlFor="nearestFirst">
-                Najbliži prvo
-              </label>
-            </div>
-          </div>
-
+          <div className="col-auto">od</div>
           <div className="col-auto">
             <input
-              className="form-control"
               type="date"
+              className="form-control"
               value={fromDate}
               onChange={(e) => setFromDate(e.target.value)}
             />
           </div>
+          <div className="col-auto">do</div>
           <div className="col-auto">
             <input
-              className="form-control"
               type="date"
+              className="form-control"
               value={toDate}
               onChange={(e) => setToDate(e.target.value)}
             />
           </div>
+
+          <div className="col-auto">
+            <div className="form-check">
+              <input
+                className="form-check-input"
+                type="checkbox"
+                checked={upcomingOnly}
+                onChange={(e) => setUpcomingOnly(e.target.checked)}
+              />
+              <label className="form-check-label">Nadolazeći</label>
+            </div>
+          </div>
+
+          <div className="col-auto">
+            <div className="form-check">
+              <input
+                className="form-check-input"
+                type="checkbox"
+                checked={nearestFirst}
+                onChange={(e) => setNearestFirst(e.target.checked)}
+              />
+              <label className="form-check-label">Najbliži prvo</label>
+            </div>
+          </div>
         </div>
       </div>
 
+      {/* LISTA */}
       {filteredQuizzes.length === 0 ? (
-        <p className="text-muted">Nema rezultata za zadane kriterije.</p>
+        <p className="text-muted">Nema rezultata.</p>
       ) : (
-        filteredQuizzes.map((quiz) => <QuizCard key={quiz.id} quiz={quiz} />)
+        <div className="row g-3">
+          <div className="row g-3">
+            {filteredQuizzes.map((q) => {
+              // --- helperi za HR prikaz + badge boje ---
+              const statusRaw = (q.status ?? "").toLowerCase();
+              const typeRaw = (q.application_type ?? "").toLowerCase();
+
+              const statusHr =
+                statusRaw === "open"
+                  ? "Otvoren"
+                  : statusRaw === "closed"
+                    ? "Zatvoren"
+                    : statusRaw === "in_progress"
+                      ? "U tijeku"
+                      : q.status;
+
+              const typeHr =
+                typeRaw === "team"
+                  ? "Timska"
+                  : typeRaw === "individual"
+                    ? "Individualna"
+                    : q.application_type;
+
+              const statusBorderClass =
+                statusRaw === "open"
+                  ? "border-success text-success"
+                  : statusRaw === "closed"
+                    ? "border-danger text-danger"
+                    : statusRaw === "in_progress"
+                      ? "border-primary text-primary"
+                      : "border-secondary text-secondary";
+
+              const ratingDisplay =
+                q.average_rating && q.average_rating > 0
+                  ? q.average_rating
+                  : "-";
+
+              return (
+                <div key={q.quiz_id} className="col-12 col-md-6">
+                  <div className="card h-100 shadow-sm border-0">
+                    <div className="card-body d-flex flex-column">
+                      {/* NASLOV */}
+                      <h4 className="mb-2" style={{ color: "#0d6efd" }}>
+                        {q.quiz_name}
+                      </h4>
+
+                      {/* "Opis" / tema */}
+                      <div className="mb-3">
+                        <strong>{q.quiz_theme}</strong>
+                      </div>
+
+                      {/* Datum */}
+                      <div className="mb-3">
+                        <span className="text-muted">Datum: </span>
+                        <strong>{q.date}</strong>
+                      </div>
+
+                      {/* DONJI RED: 4 stvari u ravnini */}
+                      <div className="mt-auto">
+                        <div className="row g-2 align-items-end">
+                          {/* Ocjena */}
+                          <div className="col-6 col-lg-3">
+                            <div className="text-muted small">Ocjena</div>
+                            <div className="fw-bold fs-5">{ratingDisplay}</div>
+                          </div>
+
+                          {/* Tip prijave */}
+                          <div className="col-6 col-lg-3">
+                            <div className="text-muted small">Tip prijave</div>
+                            <div className="fw-semibold">{typeHr}</div>
+                          </div>
+
+                          {/* Status */}
+                          <div className="col-6 col-lg-3">
+                            <div className="text-muted small">Status</div>
+                            <div
+                              className={`px-2 py-1 rounded border d-inline-block ${statusBorderClass}`}
+                              style={{ backgroundColor: "rgba(0,0,0,0.02)" }}
+                            >
+                              {statusHr}
+                            </div>
+                          </div>
+
+                          {/* Gumb */}
+                          <div className="col-6 col-lg-3 text-lg-end">
+                            <button
+                              className="btn btn-primary w-100 w-lg-auto"
+                              onClick={() => navigate(`/quizzes/${q.quiz_id}`)}
+                            >
+                              Detalji
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
       )}
     </div>
   );

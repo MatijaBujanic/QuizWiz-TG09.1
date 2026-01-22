@@ -13,6 +13,7 @@
     "@googlemaps/react-wrapper": "^1.2.0",
     "@react-oauth/google": "^0.12.2",
     "@types/react-router-dom": "^5.3.3",
+    "axios": "^1.13.2",
     "bootstrap": "^5.3.8",
     "bootstrap-icons": "^1.13.1",
     "react": "^19.1.1",
