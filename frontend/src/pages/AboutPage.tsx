@@ -1,7 +1,6 @@
 export default function AboutPage() {
   return (
     <div className="container my-5">
-      {/* NASLOV */}
       <div className="mb-5 text-center">
         <h1 className="mb-3">O aplikaciji QuizWiz</h1>
         <p className="text-muted fs-5">
@@ -11,7 +10,6 @@ export default function AboutPage() {
         </p>
       </div>
 
-      {/* OPIS APLIKACIJE */}
       <div className="row mb-5">
         <div className="col-md-6 mb-3">
           <div className="card h-100 shadow-sm">
@@ -41,8 +39,33 @@ export default function AboutPage() {
           </div>
         </div>
       </div>
+      <div className="row mb-5">
+        <div className="col-12">
+          <div className="card h-100 shadow-sm bg-primary text-white">
+            <div className="card-body text-center">
+              <h4 className="card-title mb-3">Želiš postati organizator?</h4>
 
-      {/* TIM */}
+              <p className="card-text fs-5">
+                Organizatori se ne prijavljuju putem aplikacije.
+                <br />
+                Ako želiš organizirati pub kvizove putem QuizWiz platforme, javi
+                nam se i dogovorit ćemo suradnju.
+              </p>
+
+              <p className="mb-0">
+                Kontakt email:{" "}
+                <a
+                  href="mailto:quizwiz.support@gmail.com"
+                  className="text-white fw-semibold text-decoration-underline"
+                >
+                  wizionari.progi@gmail.com
+                </a>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div className="mb-5">
         <h2 className="mb-4 text-center">Tim</h2>
 
