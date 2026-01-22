@@ -127,12 +127,14 @@ function QuizzesPage() {
         </div>
       </div>
 
+      {/* LISTA */}
       {filteredQuizzes.length === 0 ? (
         <p className="text-muted">Nema rezultata.</p>
       ) : (
         <div className="row g-3">
           <div className="row g-3">
             {filteredQuizzes.map((q) => {
+              // --- helperi za HR prikaz + badge boje ---
               const statusRaw = (q.status ?? "").toLowerCase();
               const typeRaw = (q.application_type ?? "").toLowerCase();
 
@@ -169,32 +171,39 @@ function QuizzesPage() {
               return (
                 <div key={q.quiz_id} className="col-12 col-md-6">
                   <div className="card h-100 shadow-sm border-0">
-                    <div className="card-body d-flex flex-column pb-6">
+                    <div className="card-body d-flex flex-column">
+                      {/* NASLOV */}
                       <h4 className="mb-2" style={{ color: "#0d6efd" }}>
                         {q.quiz_name}
                       </h4>
 
+                      {/* "Opis" / tema */}
                       <div className="mb-3">
                         <strong>{q.quiz_theme}</strong>
                       </div>
 
+                      {/* Datum */}
                       <div className="mb-3">
                         <span className="text-muted">Datum: </span>
                         <strong>{q.date}</strong>
                       </div>
 
+                      {/* DONJI RED: 4 stvari u ravnini */}
                       <div className="mt-auto">
                         <div className="row g-2 align-items-end">
+                          {/* Ocjena */}
                           <div className="col-6 col-lg-3">
                             <div className="text-muted small">Ocjena</div>
                             <div className="fw-bold fs-5">{ratingDisplay}</div>
                           </div>
 
+                          {/* Tip prijave */}
                           <div className="col-6 col-lg-3">
                             <div className="text-muted small">Tip prijave</div>
                             <div className="fw-semibold">{typeHr}</div>
                           </div>
 
+                          {/* Status */}
                           <div className="col-6 col-lg-3">
                             <div className="text-muted small">Status</div>
                             <div
@@ -205,6 +214,7 @@ function QuizzesPage() {
                             </div>
                           </div>
 
+                          {/* Gumb */}
                           <div className="col-6 col-lg-3 text-lg-end">
                             <button
                               className="btn btn-primary w-100 w-lg-auto"
