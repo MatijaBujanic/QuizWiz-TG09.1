@@ -40,4 +40,9 @@ public class UsersService implements UserService {
     public boolean existsByEmail(String email) {
         return findByEmail(email).isPresent();
     }
+
+    public Users upsert(Users user) {
+        return supabaseRepository.upsert("users", user);
+    }
+
 }

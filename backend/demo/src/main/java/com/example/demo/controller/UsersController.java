@@ -4,6 +4,7 @@ import com.example.demo.dto.QuizHistoryResponse;
 import com.example.demo.dto.QuizResponse;
 import com.example.demo.dto.UpdateMeRequest;
 import com.example.demo.model.Users;
+import com.example.demo.repository.SupabaseRepository;
 import com.example.demo.security.RequireRole;
 import com.example.demo.service.AuthenticationService;
 import com.example.demo.service.QuizHistoryService;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/users")
@@ -60,27 +62,72 @@ public class UsersController {
     }
 
     @PatchMapping("/me/edit")
-    public ResponseEntity<Users> updateMe(Authentication authentication, @RequestBody UpdateMeRequest req) {
-        if (authentication == null || !(authentication.getPrincipal() instanceof OAuth2User)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    public ResponseEntity<?> updateMe(
+            Authentication authentication,
+            @RequestBody UpdateMeRequest req,
+            @RequestParam(required = false) String email) { // Za testiranje u Swaggeru
+
+        // Dohvati email iz auth ili parametra
+        String userEmail = null;
+
+        if (authentication != null && authentication.isAuthenticated()
+                && authentication.getPrincipal() instanceof OAuth2User) {
+            OAuth2User oauth2User = (OAuth2User) authentication.getPrincipal();
+            userEmail = (String) oauth2User.getAttributes().get("email");
         }
 
-        OAuth2User oauth2User = (OAuth2User) authentication.getPrincipal();
-        String email = (String) oauth2User.getAttributes().get("email");
-        if (email == null || email.isBlank()) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        // Fallback na query parametar za testiranje
+        if (userEmail == null || userEmail.isBlank()) {
+            userEmail = email;
+        }
 
-        Users user = usersService.findByEmail(email)
-                .orElseThrow(); // ili kreiraj ako ga nema
+        if (userEmail == null || userEmail.isBlank()) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "success", false,
+                    "message", "Email required (login or provide ?email=X parameter)"
+            ));
+        }
+
+        // Dohvati korisnika
+        Users user = usersService.findByEmail(userEmail)
+                .orElse(null);
+
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
+                    "success", false,
+                    "message", "User not found"
+            ));
+        }
+
+        // Ažuriraj samo poslana polja
+        boolean hasChanges = false;
 
         if (req.getUsername() != null && !req.getUsername().trim().isBlank()) {
             user.setUsername(req.getUsername().trim());
+            hasChanges = true;
         }
+
         if (req.getContact_number() != null) {
             String cn = req.getContact_number().trim();
             user.setContact_number(cn.isBlank() ? null : cn);
+            hasChanges = true;
         }
 
-        return ResponseEntity.ok(usersService.save(user));
+        if (!hasChanges) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "success", false,
+                    "message", "Nothing to update"
+            ));
+        }
+
+        // Koristi UPSERT (zaobilazi PATCH problem)
+        Users updated = usersService.upsert(user);
+
+        return ResponseEntity.ok(Map.of(
+                "success", true,
+                "message", "Profile updated successfully",
+                "user", updated
+        ));
     }
 
     /**

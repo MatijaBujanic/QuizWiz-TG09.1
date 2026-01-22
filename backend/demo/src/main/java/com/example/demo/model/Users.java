@@ -1,10 +1,12 @@
 package com.example.demo.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.LocalDateTime;
 
 public class Users {
+    @JsonInclude(JsonInclude.Include.NON_NULL)
 
     @JsonProperty("user_id")
     private Long userId;

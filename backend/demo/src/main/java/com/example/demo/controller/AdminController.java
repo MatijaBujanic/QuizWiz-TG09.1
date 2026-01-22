@@ -29,7 +29,7 @@ public class AdminController {
         System.out.println("POST /api/admin/createuser: " + request.getUsername() + ", " + request.getEmail());
 
         try {
-            // Validate input
+            // Validacija ulaza
             if (request.getUsername() == null || request.getUsername().trim().isEmpty()) {
                 throw new IllegalArgumentException("Username is required");
             }
@@ -37,27 +37,35 @@ public class AdminController {
                 throw new IllegalArgumentException("Email is required");
             }
 
-            // Check if user already exists
-            Optional<Users> existingUser = supabaseRepository.findByColumn("users", "email", request.getEmail(), Users.class);
-            if (existingUser.isPresent()) {
-                throw new IllegalArgumentException("User with this email already exists");
+            String emailNormalized = request.getEmail().trim().toLowerCase();
+
+            // Provjera postoji li korisnik s tim emailom
+            Optional<Users> existingUserOpt = supabaseRepository.findByColumn("users", "email", emailNormalized, Users.class);
+
+            Users user;
+            if (existingUserOpt.isPresent()) {
+                // Ako postoji, uzmi tog korisnika i ažuriraj podatke
+                user = existingUserOpt.get();
+                user.setUsername(request.getUsername().trim());
+                // Možeš ažurirati i druge podatke ako želiš
+            } else {
+                // Ako ne postoji, kreiraj novog korisnika
+                user = new Users();  // VAŽNO: ovdje dodijelimo objekt varijabli 'user'
+                user.setUsername(request.getUsername().trim());
+                user.setEmail(emailNormalized);
+                user.setPassword("");
+                user.setContact_number(null);
+                user.setRole("user");
             }
 
-            // Create new user object
-            Users newUser = new Users();
-            newUser.setUsername(request.getUsername().trim());
-            newUser.setEmail(request.getEmail().trim().toLowerCase());
-            newUser.setPassword("");
-            newUser.setContact_number(null);
-            newUser.setRole("user");
+            // Pozovi upsert da kreira ili ažurira korisnika
+            Users savedUser = supabaseRepository.upsert("users", user);
 
-            // Save user using repository
-            Users savedUser = supabaseRepository.insert("users", newUser, Users.class);
-            System.out.println("User created successfully: " + savedUser.getEmail());
+            System.out.println("User upserted successfully: " + savedUser.getEmail());
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
-            response.put("message", "User created successfully");
+            response.put("message", existingUserOpt.isPresent() ? "User updated successfully" : "User created successfully");
             response.put("user", Map.of(
                     "userId", savedUser.getUserId(),
                     "username", savedUser.getUsername(),
@@ -74,14 +82,16 @@ public class AdminController {
             errorResponse.put("message", e.getMessage());
             return ResponseEntity.badRequest().body(errorResponse);
         } catch (Exception e) {
-            System.out.println("Error creating user: " + e.getMessage());
+            System.out.println("Error creating/updating user: " + e.getMessage());
             e.printStackTrace();
             Map<String, Object> errorResponse = new HashMap<>();
             errorResponse.put("success", false);
-            errorResponse.put("message", "Failed to create user: " + e.getMessage());
+            errorResponse.put("message", "Failed to create or update user: " + e.getMessage());
             return ResponseEntity.internalServerError().body(errorResponse);
         }
     }
+
+
 
     @GetMapping("/users")
     @RequireRole({"ADMIN"})
