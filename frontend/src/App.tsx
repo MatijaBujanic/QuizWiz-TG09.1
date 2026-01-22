@@ -15,9 +15,7 @@ import CreateQuizPage from "./pages/CreateQuizPage";
 import MyQuizzesPage from "./pages/MyQuizzesPage";
 import RegisterPage from "./pages/RegisterPage";
 import MyTeamPage from "./pages/MyTeamPage";
-import MyApplicationsPage from "./pages/MyApplicationsPage";
 import ProtectedRoute from "./routes/ProtectedRoute";
-import MyProfilePage from "./pages/MyProfilePage";
 
 function App() {
   return (
@@ -38,14 +36,9 @@ function App() {
           ></Route>
           <Route path="/quizzes" element={<QuizzesPage />}></Route>
           <Route path="/quizzes/:id" element={<QuizDetailsPage />} />
-          <Route path="/my-profile" element={<MyProfilePage />} />
           <Route path="/about" element={<AboutPage />}></Route>
           <Route path="/register" element={<RegisterPage />}></Route>
           <Route path="/my-teams" element={<MyTeamPage />}></Route>
-          <Route
-            path="/my-applications"
-            element={<MyApplicationsPage />}
-          ></Route>
           <Route
             path="/create-quiz"
             element={

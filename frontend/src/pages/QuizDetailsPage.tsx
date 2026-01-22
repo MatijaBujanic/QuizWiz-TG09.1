@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import api from "../api/api";
 import GoogleMap from "../components/GoogleMap";
 import type { Quiz } from "../types/Quiz";
@@ -61,9 +61,10 @@ export default function QuizDetailsPage() {
   const mapCenter = useMemo(() => ({ lat: 45.815, lng: 15.9819 }), []);
 
   const [me, setMe] = useState<Me | null>(null);
-  const [applying, setApplying] = useState(false);
-  const [applyError, setApplyError] = useState<string | null>(null);
+  const [applying] = useState(false);
+  const [applyError] = useState<string | null>(null);
 
+  const navigate = useNavigate();
   const { token, isAuthenticated } = useAuth();
 
   const axiosInstance = useMemo(
@@ -83,7 +84,6 @@ export default function QuizDetailsPage() {
       }
 
       try {
-        // Sastavi precizniji upit za geocoding
         let geocodeQuery = location.address;
         if (location.city) {
           geocodeQuery += `, ${location.city}, Croatia`;
@@ -156,81 +156,9 @@ export default function QuizDetailsPage() {
     loadMe();
   }, [axiosInstance, isAuthenticated, token]);
 
-  const handleApply = async () => {
-    if (!me) {
-      alert("Molimo prijavite se da se prijavite na kviz");
-      return;
-    }
-
+  const handleApply = () => {
     if (!quiz) return;
-
-    setApplying(true);
-    setApplyError(null);
-
-    try {
-      console.log("Creating team application for quiz:", quiz.quiz_id);
-
-      const baseName = me.username || me.email || "Team";
-      const safeBase =
-        baseName.replace(/[^a-zA-Z0-9-_ ]/g, "").trim() || "Team";
-      const teamName = `${safeBase}-${quiz.quiz_id}-${Date.now()}`;
-
-      const response = await axiosInstance.post(
-        "/api/teams",
-        {
-          team_name: teamName,
-          quiz_id: quiz.quiz_id,
-          members: [me.email || me.username || "unknown"],
-        },
-        {
-          params: {
-            createdBy: me.user_id,
-          },
-        },
-      );
-
-      console.log("Team created:", response.data);
-
-      try {
-        const localRaw = localStorage.getItem("local_applications");
-        const localApps = localRaw ? JSON.parse(localRaw) : [];
-        localApps.push({
-          quiz_id: quiz.quiz_id,
-          quiz_name: quiz.quiz_name,
-          date: quiz.date,
-          location_name: location?.location_name,
-          team_name: teamName,
-          status: "sent",
-          email: me.email,
-        });
-        localStorage.setItem("local_applications", JSON.stringify(localApps));
-      } catch (storageErr) {
-        console.warn("Could not store local application fallback", storageErr);
-      }
-
-      alert("Uspješno ste se prijavili na kviz! Vaš tim je kreiran.");
-    } catch (err: any) {
-      console.error("Error applying to quiz:", err);
-      console.error("Response data:", err.response?.data);
-      console.error("Response status:", err.response?.status);
-
-      let errorMsg = "Greška pri prijavi na kviz";
-      if (err.response?.data) {
-        if (
-          typeof err.response.data === "object" &&
-          err.response.data.message
-        ) {
-          errorMsg = err.response.data.message;
-        } else if (typeof err.response.data === "string") {
-          errorMsg = err.response.data;
-        }
-      }
-
-      setApplyError(errorMsg);
-      alert(`${errorMsg}. Provjerite konzolu za detalje.`);
-    } finally {
-      setApplying(false);
-    }
+    navigate("/register", { state: { quizId: quiz.quiz_id } });
   };
 
   const reloadQuiz = async () => {
@@ -427,7 +355,6 @@ export default function QuizDetailsPage() {
                   }
                 />
               </div>
-
               {location && (
                 <div className="text-muted small mt-2">
                   📍 {location.location_name}
@@ -440,8 +367,6 @@ export default function QuizDetailsPage() {
 
           <div className="card shadow-sm border-0">
             <div className="card-body">
-              <h5 className="mb-3">Akcije</h5>
-
               {applyError && (
                 <div className="alert alert-danger small mb-3">
                   {applyError}
@@ -456,11 +381,7 @@ export default function QuizDetailsPage() {
                 >
                   {applying ? "Prijavljivanje..." : "Prijavi se"}
                 </button>
-                <button className="btn btn-outline-primary btn-lg" disabled>
-                  Timovi
-                </button>
               </div>
-
               {!me && (
                 <p className="text-muted small mt-2 mb-0">
                   Trebate biti prijavljeni da se prijavite na kviz

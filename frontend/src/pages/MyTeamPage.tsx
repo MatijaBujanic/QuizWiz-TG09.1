@@ -272,9 +272,6 @@ export default function MyTeamPage() {
         </div>
 
         <div className="d-flex gap-2">
-          <Link to="/register" className="btn btn-outline-primary">
-            Kreiraj tim
-          </Link>
           <button
             className="btn btn-outline-secondary"
             onClick={() => me?.user_id && reloadTeams(me.user_id)}

@@ -96,12 +96,6 @@ function Navbar() {
                     </NavLink>
                   </li>
                   <li>
-                    <NavLink className={linkClass} to="/register">
-                      Napravi tim
-                    </NavLink>
-                  </li>
-
-                  <li>
                     <hr className="dropdown-divider" />
                   </li>
 
