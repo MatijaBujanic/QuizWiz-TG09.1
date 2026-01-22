@@ -1,10 +1,8 @@
 package com.example.demo.model;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.time.LocalDateTime;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)  // Preskoči null polja u JSON
+import java.time.LocalDateTime;
 
 public class Team {
 
@@ -18,7 +16,7 @@ public class Team {
     private Integer numberOfMembers;
 
     @JsonProperty("application_status")
-    private String applicationStatus;
+    private String applicationStatus; 
 
     private Integer points;
     private Integer rank;
@@ -30,14 +28,10 @@ public class Team {
     private LocalDateTime approvedAt;
 
     @JsonProperty("created_by")
-    private Integer createdBy;
+    private Integer createdBy; 
 
     @JsonProperty("quiz_id")
-    private Integer quizId;
-
-    // NOVO: Polje za članove tima (stringovi)
-    // U bazi će biti JSON array ili text
-    private String[] members;
+    private Integer quizId;    
 
     public Team() {}
 
@@ -57,7 +51,6 @@ public class Team {
         this.quizId = quizId;
     }
 
-    // Getters & Setters
     public Integer getTeamId() { return teamId; }
     public void setTeamId(Integer teamId) { this.teamId = teamId; }
 
@@ -87,7 +80,4 @@ public class Team {
 
     public Integer getQuizId() { return quizId; }
     public void setQuizId(Integer quizId) { this.quizId = quizId; }
-
-    public String[] getMembers() { return members; }
-    public void setMembers(String[] members) { this.members = members; }
 }

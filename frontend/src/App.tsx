@@ -1,4 +1,3 @@
-import AboutPage from "./pages/AboutPage";
 import AdminPage from "./pages/AdminPage";
 import AdminRoute from "./routes/AdminRoute";
 import Footer from "./components/Footer";
@@ -7,9 +6,7 @@ import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/LoginPage";
 import Navbar from "./components/Navbar";
 import OAuth2Callback from "./pages/OAuth2Callback";
-import QuizzesPage from "./pages/QuizzesPage";
 import { Routes, Route } from "react-router-dom";
-import CreateQuizPage from "./pages/CreateQuizPage";
 
 function App() {
   return (
@@ -21,9 +18,6 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/oauth2/success" element={<OAuth2Callback />} />
           <Route path="/home" element={<HomePage />}></Route>
-          <Route path="/quizzes" element={<QuizzesPage />}></Route>
-          <Route path="/about" element={<AboutPage />}></Route>
-          <Route path="/createquiz" element={<CreateQuizPage />}></Route>
           <Route
             path="/admin"
             element={
@@ -33,8 +27,8 @@ function App() {
             }
           ></Route>
         </Routes>
+        <Footer />
       </div>
-      <Footer />
     </div>
   );
 }
