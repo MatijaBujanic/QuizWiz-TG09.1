@@ -4,12 +4,14 @@ import com.example.demo.dto.QuizRatingResponse;
 import com.example.demo.dto.RateQuizRequest;
 import com.example.demo.model.QuizRating;
 import com.example.demo.service.QuizRatingService;
+import com.example.demo.service.SupabaseService; // Pretpostavljam da koristiš ovaj servis
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -17,9 +19,11 @@ import java.util.Map;
 public class QuizRatingController {
 
     private final QuizRatingService ratingService;
+    private final SupabaseService supabaseService;
 
-    public QuizRatingController(QuizRatingService ratingService) {
+    public QuizRatingController(QuizRatingService ratingService, SupabaseService supabaseService) {
         this.ratingService = ratingService;
+        this.supabaseService = supabaseService;
     }
 
     /**
@@ -127,15 +131,38 @@ public class QuizRatingController {
     }
 
     /**
-     * Helper metoda za dohvaćanje userId
+     * Helper metoda za dohvaćanje userId iz auth ili parametra
      */
-    private Integer getUserIdFromAuth(Authentication authentication, Integer fallbackUserId) {
-        if (authentication != null && authentication.isAuthenticated()
-                && authentication.getPrincipal() instanceof OAuth2User) {
-            OAuth2User oauth2User = (OAuth2User) authentication.getPrincipal();
-            // Ovdje implementiraj logiku za dohvaćanje userId iz OAuth2User
-            // Za sada vraćamo fallback
+    private Integer getUserIdFromAuth(Authentication authentication, Integer userId) {
+        if (userId != null) {
+            // Ako je userId poslan kao parametar (za testiranje), koristi ga
+            return userId;
         }
-        return fallbackUserId;
+
+        if (authentication == null || !(authentication.getPrincipal() instanceof OAuth2User)) {
+            return null; // Ili baci iznimku ako želiš strožu kontrolu
+        }
+
+        OAuth2User oauth2User = (OAuth2User) authentication.getPrincipal();
+        String email = oauth2User.getAttribute("email");
+
+        if (email == null) {
+            return null; // Ili baci iznimku
+        }
+
+        // Dohvati user_id iz baze korisnika
+        List<Map<String, Object>> users = supabaseService.getAllUsers();
+        for (Map<String, Object> user : users) {
+            if (email.equalsIgnoreCase((String) user.get("email"))) {
+                Object userIdObj = user.get("user_id");
+                if (userIdObj instanceof Integer) {
+                    return (Integer) userIdObj;
+                } else if (userIdObj instanceof Number) {
+                    return ((Number) userIdObj).intValue();
+                }
+            }
+        }
+
+        return null; // Korisnik nije pronađen
     }
 }
