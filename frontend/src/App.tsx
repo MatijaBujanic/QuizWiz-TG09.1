@@ -8,9 +8,15 @@ import LoginPage from "./pages/LoginPage";
 import Navbar from "./components/Navbar";
 import OAuth2Callback from "./pages/OAuth2Callback";
 import QuizzesPage from "./pages/QuizzesPage";
-import { Routes, Route } from "react-router-dom";
-import CreateQuizPage from "./pages/CreateQuizPage";
 import QuizDetailsPage from "./pages/QuizDetailsPage";
+import { Routes, Route } from "react-router-dom";
+import OrganizerRoute from "./routes/OrganizerRoute";
+import CreateQuizPage from "./pages/CreateQuizPage";
+import MyQuizzesPage from "./pages/MyQuizzesPage";
+import RegisterPage from "./pages/RegisterPage";
+import MyTeamPage from "./pages/MyTeamPage";
+import MyApplicationsPage from "./pages/MyApplicationsPage";
+import ProtectedRoute from "./routes/ProtectedRoute";
 import MyProfilePage from "./pages/MyProfilePage";
 
 function App() {
@@ -22,18 +28,49 @@ function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/oauth2/success" element={<OAuth2Callback />} />
-          <Route path="/home" element={<HomePage />}></Route>
+          <Route
+            path="/home"
+            element={
+              <ProtectedRoute>
+                <HomePage />
+              </ProtectedRoute>
+            }
+          ></Route>
           <Route path="/quizzes" element={<QuizzesPage />}></Route>
           <Route path="/quizzes/:id" element={<QuizDetailsPage />} />
           <Route path="/my-profile" element={<MyProfilePage />} />
           <Route path="/about" element={<AboutPage />}></Route>
-          <Route path="/createquiz" element={<CreateQuizPage />}></Route>
+          <Route path="/register" element={<RegisterPage />}></Route>
+          <Route path="/my-team" element={<MyTeamPage />}></Route>
+          <Route path="/my-applications" element={<MyApplicationsPage />}></Route>
+          <Route
+            path="/create-quiz"
+            element={
+              <ProtectedRoute>
+                <OrganizerRoute>
+                  <CreateQuizPage />
+                </OrganizerRoute>
+              </ProtectedRoute>
+            }
+          ></Route>
+          <Route
+            path="/my-quizzes"
+            element={
+              <ProtectedRoute>
+                <OrganizerRoute>
+                  <MyQuizzesPage />
+                </OrganizerRoute>
+              </ProtectedRoute>
+            }
+          ></Route>
           <Route
             path="/admin"
             element={
-              <AdminRoute>
-                <AdminPage />
-              </AdminRoute>
+              <ProtectedRoute>
+                <AdminRoute>
+                  <AdminPage />
+                </AdminRoute>
+              </ProtectedRoute>
             }
           ></Route>
         </Routes>

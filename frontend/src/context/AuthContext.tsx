@@ -34,7 +34,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [role, setRole] = useState<string | null>(() =>
     localStorage.getItem("role")
   );
-
+  // Dev tip: to test organizer/admin when DB users are all "user", set a temp value here
+  // e.g., setRole("ADMIN") or setRole("ORGANIZER") after login, or preset localStorage.setItem("role", "ADMIN") and reload.
   useEffect(() => {
     if (token) {
       localStorage.setItem("jwt_token", token);

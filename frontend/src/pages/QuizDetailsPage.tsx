@@ -48,18 +48,102 @@ export default function QuizDetailsPage() {
   const mapCenter = useMemo(() => ({ lat: 45.815, lng: 15.9819 }), []);
 
   const [me, setMe] = useState<Me | null>(null);
+  const [applying, setApplying] = useState(false);
+  const [applyError, setApplyError] = useState<string | null>(null);
+
+  const axiosInstance = axios.create({
+    baseURL: "http://localhost:8080",
+    withCredentials: true,
+  });
 
   useEffect(() => {
     const loadMe = async () => {
       try {
-        const res = await axios.get<Me>("/users/me", { withCredentials: true });
+        const res = await axiosInstance.get<Me>("/users/me");
+        console.log("User data from /users/me:", res.data);
         setMe(res.data);
-      } catch {
+      } catch (err) {
+        console.error("Failed to load user:", err);
         setMe(null);
       }
     };
     loadMe();
   }, []);
+
+  const handleApply = async () => {
+    if (!me) {
+      alert("Molimo prijavite se da se prijavite na kviz");
+      return;
+    }
+
+    if (!quiz) return;
+
+    setApplying(true);
+    setApplyError(null);
+
+    try {
+      console.log("Creating team application for quiz:", quiz.quiz_id);
+
+      const baseName = me.username || me.email || "Team";
+      const safeBase = baseName.replace(/[^a-zA-Z0-9-_ ]/g, "").trim() || "Team";
+      const teamName = `${safeBase}-${quiz.quiz_id}-${Date.now()}`;
+
+      // Kreiraj tim za ovaj kviz (ako je team quiz)
+      const response = await axiosInstance.post(
+        "/api/teams",
+        {
+          team_name: teamName,
+          quiz_id: quiz.quiz_id,
+          members: [me.email || me.username || "unknown"],
+        },
+        {
+          params: {
+            createdBy: me.user_id
+          }
+        }
+      );
+      
+      console.log("Team created:", response.data);
+
+      // Sačuvaj lokalni zapis kao fallback za MyApplications
+      try {
+        const localRaw = localStorage.getItem("local_applications");
+        const localApps = localRaw ? JSON.parse(localRaw) : [];
+        localApps.push({
+          quiz_id: quiz.quiz_id,
+          quiz_name: quiz.quiz_name,
+          date: quiz.date,
+          location_name: location?.location_name,
+          team_name: teamName,
+          status: "sent",
+          email: me.email,
+        });
+        localStorage.setItem("local_applications", JSON.stringify(localApps));
+      } catch (storageErr) {
+        console.warn("Could not store local application fallback", storageErr);
+      }
+
+      alert("Uspješno ste se prijavili na kviz! Vaš tim je kreiran.");
+    } catch (err: any) {
+      console.error("Error applying to quiz:", err);
+      console.error("Response data:", err.response?.data);
+      console.error("Response status:", err.response?.status);
+      
+      let errorMsg = "Greška pri prijavi na kviz";
+      if (err.response?.data) {
+        if (typeof err.response.data === 'object' && err.response.data.message) {
+          errorMsg = err.response.data.message;
+        } else if (typeof err.response.data === 'string') {
+          errorMsg = err.response.data;
+        }
+      }
+      
+      setApplyError(errorMsg);
+      alert(`${errorMsg}. Provjerite konzolu za detalje.`);
+    } finally {
+      setApplying(false);
+    }
+  };
 
   useEffect(() => {
     if (!id) return;
@@ -257,14 +341,28 @@ export default function QuizDetailsPage() {
             <div className="card-body">
               <h5 className="mb-3">Akcije</h5>
 
+              {applyError && (
+                <div className="alert alert-danger small mb-3">{applyError}</div>
+              )}
+
               <div className="d-grid gap-2">
-                <button className="btn btn-primary btn-lg" disabled>
-                  Prijavi se
+                <button
+                  className="btn btn-primary btn-lg"
+                  onClick={handleApply}
+                  disabled={applying || !me}
+                >
+                  {applying ? "Prijavljivanje..." : "Prijavi se"}
                 </button>
                 <button className="btn btn-outline-primary btn-lg" disabled>
                   Timovi
                 </button>
               </div>
+
+              {!me && (
+                <p className="text-muted small mt-2 mb-0">
+                  Trebate biti prijavljeni da se prijavite na kviz
+                </p>
+              )}
             </div>
           </div>
         </div>

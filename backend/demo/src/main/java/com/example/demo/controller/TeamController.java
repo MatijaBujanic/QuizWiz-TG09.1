@@ -115,6 +115,29 @@ public class TeamController {
         }
     }
     /**
+     * GET /api/teams/user/{userId}
+     * Dohvaća timove koje je korisnik kreirao
+     */
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<?> getUserTeams(@PathVariable Integer userId) {
+        try {
+            List<TeamResponse> teams = teamService.getTeamsByCreator(userId);
+            
+            return ResponseEntity.ok(Map.of(
+                    "success", true,
+                    "teams", teams,
+                    "count", teams.size()
+            ));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
+                    "success", false,
+                    "message", e.getMessage()
+            ));
+        }
+    }
+
+    /**
      * GET /api/teams/{id}
      * dohvaca detalje o timu, opcionalno za inplementirat
      */
