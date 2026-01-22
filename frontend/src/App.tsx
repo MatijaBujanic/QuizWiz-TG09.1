@@ -11,6 +11,7 @@ import QuizzesPage from "./pages/QuizzesPage";
 import { Routes, Route } from "react-router-dom";
 import CreateQuizPage from "./pages/CreateQuizPage";
 import QuizDetailsPage from "./pages/QuizDetailsPage";
+import MyProfilePage from "./pages/MyProfilePage";
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
           <Route path="/home" element={<HomePage />}></Route>
           <Route path="/quizzes" element={<QuizzesPage />}></Route>
           <Route path="/quizzes/:id" element={<QuizDetailsPage />} />
+          <Route path="/my-profile" element={<MyProfilePage />} />
           <Route path="/about" element={<AboutPage />}></Route>
           <Route path="/createquiz" element={<CreateQuizPage />}></Route>
           <Route

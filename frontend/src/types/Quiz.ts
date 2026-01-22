@@ -1,11 +1,6 @@
 export type Quiz = {
   date: string;
-  time: {
-    hour: number;
-    minute: number;
-    second: number;
-    nano: number;
-  };
+  time: string | { hour: number; minute: number; second: number; nano: number };
   description: string;
   status: string;
   quiz_id: number;

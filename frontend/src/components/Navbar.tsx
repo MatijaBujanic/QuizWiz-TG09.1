@@ -73,6 +73,11 @@ function Navbar() {
                   aria-labelledby="featuresDropdown"
                 >
                   <li>
+                    <NavLink className={linkClass} to="/my-profile">
+                      Moj profil
+                    </NavLink>
+                  </li>
+                  <li>
                     <NavLink className={linkClass} to="/quizzes">
                       Kvizovi
                     </NavLink>
