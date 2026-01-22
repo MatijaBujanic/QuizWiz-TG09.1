@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import axios from "axios";
+import api from "../api/api";
+import { useAuth } from "../context/AuthContext";
 
 type Props = {
   quizId: number;
@@ -7,6 +8,8 @@ type Props = {
 };
 
 const StarRatingControl = ({ quizId, onChanged }: Props) => {
+  const { token, isAuthenticated } = useAuth();
+
   const [myRating, setMyRating] = useState<number>(0);
   const [hover, setHover] = useState<number>(0);
   const [loading, setLoading] = useState(true);
@@ -15,13 +18,18 @@ const StarRatingControl = ({ quizId, onChanged }: Props) => {
 
   const stars = useMemo(() => [1, 2, 3, 4, 5], []);
 
+  const authHeaders = useMemo(() => {
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  }, [token]);
+
   useEffect(() => {
     const loadMyRating = async () => {
       setLoading(true);
       setError(null);
+
       try {
-        const res = await axios.get(`/api/quizzes/${quizId}/rating`, {
-          withCredentials: true,
+        const res = await api.get(`/api/quizzes/${quizId}/rating`, {
+          headers: authHeaders,
         });
 
         const data = res.data;
@@ -36,32 +44,53 @@ const StarRatingControl = ({ quizId, onChanged }: Props) => {
 
         value = Math.max(0, Math.min(5, Math.floor(value)));
         setMyRating(value);
-      } catch (e) {
+      } catch (e: any) {
+        console.warn(
+          "loadMyRating failed:",
+          e?.response?.status,
+          e?.response?.data,
+        );
         setMyRating(0);
       } finally {
         setLoading(false);
       }
     };
 
+    // ako nisi prijavljen, nema smisla pozivati
+    if (!isAuthenticated || !token) {
+      setMyRating(0);
+      setLoading(false);
+      return;
+    }
+
     loadMyRating();
-  }, [quizId]);
+  }, [quizId, authHeaders, isAuthenticated, token]);
 
   const rate = async (value: number) => {
     setBusy(true);
     setError(null);
 
     try {
-      await axios.post(
+      if (!token) {
+        setError("Trebaš biti prijavljen da ocijeniš.");
+        return;
+      }
+
+      await api.post(
         `/api/quizzes/${quizId}/rate`,
         { rating: value },
-        {
-          withCredentials: true,
-        },
+        { headers: authHeaders },
       );
+
       setMyRating(value);
       onChanged?.();
-    } catch (e) {
-      setError("Ne mogu spremiti ocjenu.");
+    } catch (e: any) {
+      console.error("rate failed:", e?.response?.status, e?.response?.data);
+      setError(
+        typeof e?.response?.data === "string"
+          ? e.response.data
+          : e?.response?.data?.message || "Ne mogu spremiti ocjenu.",
+      );
     } finally {
       setBusy(false);
     }
@@ -72,13 +101,28 @@ const StarRatingControl = ({ quizId, onChanged }: Props) => {
     setError(null);
 
     try {
-      await axios.delete(`/api/quizzes/${quizId}/rate`, {
-        withCredentials: true,
+      if (!token) {
+        setError("Trebaš biti prijavljen da obrišeš ocjenu.");
+        return;
+      }
+
+      await api.delete(`/api/quizzes/${quizId}/rate`, {
+        headers: authHeaders,
       });
+
       setMyRating(0);
       onChanged?.();
-    } catch (e) {
-      setError("Ne mogu obrisati ocjenu.");
+    } catch (e: any) {
+      console.error(
+        "removeRating failed:",
+        e?.response?.status,
+        e?.response?.data,
+      );
+      setError(
+        typeof e?.response?.data === "string"
+          ? e.response.data
+          : e?.response?.data?.message || "Ne mogu obrisati ocjenu.",
+      );
     } finally {
       setBusy(false);
     }
@@ -97,7 +141,7 @@ const StarRatingControl = ({ quizId, onChanged }: Props) => {
             key={s}
             type="button"
             className="btn p-0 border-0"
-            disabled={loading || busy}
+            disabled={loading || busy || !token}
             onMouseEnter={() => setHover(s)}
             onMouseLeave={() => setHover(0)}
             onClick={() => rate(s)}
@@ -117,7 +161,7 @@ const StarRatingControl = ({ quizId, onChanged }: Props) => {
       <button
         type="button"
         className="btn btn-sm btn-outline-danger"
-        disabled={loading || busy || myRating === 0}
+        disabled={loading || busy || myRating === 0 || !token}
         onClick={removeRating}
         title="Obriši moju ocjenu"
       >
