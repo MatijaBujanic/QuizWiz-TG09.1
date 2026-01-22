@@ -86,28 +86,18 @@ function Navbar() {
                   aria-labelledby="featuresDropdown"
                 >
                   <li>
-                    <NavLink className={linkClass} to="/my-profile">
-                      Moj profil
-                    </NavLink>
-                  </li>
-                  <li>
                     <NavLink className={linkClass} to="/quizzes">
                       Kvizovi
                     </NavLink>
                   </li>
                   <li>
-                    <NavLink className={linkClass} to="/my-team">
-                      Moj tim
-                    </NavLink>
-                  </li>
-                  <li>
-                    <NavLink className={linkClass} to="/my-applications">
-                      Moje prijave
+                    <NavLink className={linkClass} to="/my-teams">
+                      Moji timovi
                     </NavLink>
                   </li>
                   <li>
                     <NavLink className={linkClass} to="/register">
-                      Registracija tima
+                      Napravi tim
                     </NavLink>
                   </li>
 

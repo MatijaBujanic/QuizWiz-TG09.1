@@ -188,34 +188,33 @@ export default function QuizDetailsPage() {
     }
   };
 
-  useEffect(() => {
+  const reloadQuiz = async () => {
     if (!id) return;
 
-    const load = async () => {
-      setError("");
-      setQuiz(null);
-      setLocation(null);
+    try {
+      const quizRes = await api.get(`/api/quizzes/${id}`);
+      const q: Quiz = quizRes.data;
+      setQuiz(q);
 
-      try {
-        const quizRes = await api.get(`/api/quizzes/${id}`);
-        const q: Quiz = quizRes.data;
-        setQuiz(q);
-
-        if (q.location_id != null) {
-          try {
-            const locRes = await api.get(`/api/locations/${q.location_id}`);
-            setLocation(locRes.data);
-          } catch (e) {
-            console.error("Location fetch failed:", e);
-          }
+      if (q.location_id != null) {
+        try {
+          const locRes = await api.get(`/api/locations/${q.location_id}`);
+          setLocation(locRes.data);
+        } catch (e) {
+          console.error("Location fetch failed:", e);
         }
-      } catch (e) {
-        console.error(e);
-        setError("Ne mogu dohvatiti detalje kviza.");
       }
-    };
+    } catch (e) {
+      console.error(e);
+      setError("Ne mogu dohvatiti detalje kviza.");
+    }
+  };
 
-    load();
+  useEffect(() => {
+    setError("");
+    setQuiz(null);
+    setLocation(null);
+    reloadQuiz();
   }, [id]);
 
   const ratingDisplay = useMemo(() => {
@@ -268,7 +267,7 @@ export default function QuizDetailsPage() {
 
         <div className="text-end">
           {me?.user_id && (
-            <StarRatingControl quizId={quiz.quiz_id} onChanged={() => {}} />
+            <StarRatingControl quizId={quiz.quiz_id} onChanged={reloadQuiz} />
           )}
           <div className="text-muted small">Ocjena</div>
           <div className="fw-bold fs-2" style={{ lineHeight: 1 }}>
@@ -369,11 +368,6 @@ export default function QuizDetailsPage() {
 
               <div style={{ height: 280 }}>
                 <GoogleMap apiKey={apiKey} center={mapCenter} zoom={13} />
-              </div>
-
-              <div className="text-muted small mt-2">
-                (Karta je preview — adresa se ne pozicionira automatski jer
-                nemamo koordinate.)
               </div>
             </div>
           </div>

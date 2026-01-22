@@ -41,8 +41,11 @@ function App() {
           <Route path="/my-profile" element={<MyProfilePage />} />
           <Route path="/about" element={<AboutPage />}></Route>
           <Route path="/register" element={<RegisterPage />}></Route>
-          <Route path="/my-team" element={<MyTeamPage />}></Route>
-          <Route path="/my-applications" element={<MyApplicationsPage />}></Route>
+          <Route path="/my-teams" element={<MyTeamPage />}></Route>
+          <Route
+            path="/my-applications"
+            element={<MyApplicationsPage />}
+          ></Route>
           <Route
             path="/create-quiz"
             element={
