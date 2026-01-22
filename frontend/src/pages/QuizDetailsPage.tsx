@@ -7,11 +7,21 @@ import type { Location } from "../types/Location";
 import axios from "axios";
 import StarRatingControl from "../components/StarRatingControl";
 
+import { useAuth } from "../context/AuthContext";
+import { getEmailFromToken } from "../utils/authMapper";
+
 type Me = {
   user_id: number;
   email: string;
   username: string;
   role: string;
+};
+
+type RoleLookupResponse = {
+  email: string;
+  role: string;
+  username: string;
+  userId: number;
 };
 
 function statusHr(raw: string) {
@@ -44,31 +54,62 @@ export default function QuizDetailsPage() {
   const [error, setError] = useState("");
 
   const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string;
-
   const mapCenter = useMemo(() => ({ lat: 45.815, lng: 15.9819 }), []);
 
   const [me, setMe] = useState<Me | null>(null);
   const [applying, setApplying] = useState(false);
   const [applyError, setApplyError] = useState<string | null>(null);
 
-  const axiosInstance = axios.create({
-    baseURL: "http://localhost:8080",
-    withCredentials: true,
-  });
+  const { token, isAuthenticated } = useAuth();
+
+  const axiosInstance = useMemo(
+    () =>
+      axios.create({
+        baseURL: "http://localhost:8080",
+        withCredentials: true,
+      }),
+    [],
+  );
 
   useEffect(() => {
     const loadMe = async () => {
       try {
-        const res = await axiosInstance.get<Me>("/users/me");
-        console.log("User data from /users/me:", res.data);
-        setMe(res.data);
+        if (!isAuthenticated || !token) {
+          setMe(null);
+          return;
+        }
+
+        const email = getEmailFromToken(token);
+        if (!email) {
+          console.warn("Could not extract email from JWT token.");
+          setMe(null);
+          return;
+        }
+
+        const res = await axiosInstance.get<RoleLookupResponse>(
+          "/api/users/role",
+          { params: { email } },
+        );
+
+        const dto = res.data;
+
+        const mapped: Me = {
+          user_id: dto.userId,
+          email: dto.email,
+          username: dto.username,
+          role: dto.role,
+        };
+
+        console.log("User data from /api/users/role:", mapped);
+        setMe(mapped);
       } catch (err) {
-        console.error("Failed to load user:", err);
+        console.error("Failed to load user via /api/users/role:", err);
         setMe(null);
       }
     };
+
     loadMe();
-  }, []);
+  }, [axiosInstance, isAuthenticated, token]);
 
   const handleApply = async () => {
     if (!me) {
@@ -85,10 +126,10 @@ export default function QuizDetailsPage() {
       console.log("Creating team application for quiz:", quiz.quiz_id);
 
       const baseName = me.username || me.email || "Team";
-      const safeBase = baseName.replace(/[^a-zA-Z0-9-_ ]/g, "").trim() || "Team";
+      const safeBase =
+        baseName.replace(/[^a-zA-Z0-9-_ ]/g, "").trim() || "Team";
       const teamName = `${safeBase}-${quiz.quiz_id}-${Date.now()}`;
 
-      // Kreiraj tim za ovaj kviz (ako je team quiz)
       const response = await axiosInstance.post(
         "/api/teams",
         {
@@ -98,14 +139,13 @@ export default function QuizDetailsPage() {
         },
         {
           params: {
-            createdBy: me.user_id
-          }
-        }
+            createdBy: me.user_id,
+          },
+        },
       );
-      
+
       console.log("Team created:", response.data);
 
-      // Sačuvaj lokalni zapis kao fallback za MyApplications
       try {
         const localRaw = localStorage.getItem("local_applications");
         const localApps = localRaw ? JSON.parse(localRaw) : [];
@@ -128,16 +168,19 @@ export default function QuizDetailsPage() {
       console.error("Error applying to quiz:", err);
       console.error("Response data:", err.response?.data);
       console.error("Response status:", err.response?.status);
-      
+
       let errorMsg = "Greška pri prijavi na kviz";
       if (err.response?.data) {
-        if (typeof err.response.data === 'object' && err.response.data.message) {
+        if (
+          typeof err.response.data === "object" &&
+          err.response.data.message
+        ) {
           errorMsg = err.response.data.message;
-        } else if (typeof err.response.data === 'string') {
+        } else if (typeof err.response.data === "string") {
           errorMsg = err.response.data;
         }
       }
-      
+
       setApplyError(errorMsg);
       alert(`${errorMsg}. Provjerite konzolu za detalje.`);
     } finally {
@@ -221,15 +264,12 @@ export default function QuizDetailsPage() {
           </h2>
 
           <div className="text-muted mb-2">{quiz.quiz_theme}</div>
-          <div className="small text-muted">
-            DEBUG me: {me ? JSON.stringify(me) : "null"}
-          </div>
-          {me?.user_id && (
-            <StarRatingControl quizId={quiz.quiz_id} onChanged={() => {}} />
-          )}
         </div>
 
         <div className="text-end">
+          {me?.user_id && (
+            <StarRatingControl quizId={quiz.quiz_id} onChanged={() => {}} />
+          )}
           <div className="text-muted small">Ocjena</div>
           <div className="fw-bold fs-2" style={{ lineHeight: 1 }}>
             {ratingDisplay}
@@ -322,6 +362,7 @@ export default function QuizDetailsPage() {
               )}
             </div>
           </div>
+
           <div className="card shadow-sm border-0 mb-3">
             <div className="card-body">
               <h5 className="mb-3">Karta</h5>
@@ -342,7 +383,9 @@ export default function QuizDetailsPage() {
               <h5 className="mb-3">Akcije</h5>
 
               {applyError && (
-                <div className="alert alert-danger small mb-3">{applyError}</div>
+                <div className="alert alert-danger small mb-3">
+                  {applyError}
+                </div>
               )}
 
               <div className="d-grid gap-2">
