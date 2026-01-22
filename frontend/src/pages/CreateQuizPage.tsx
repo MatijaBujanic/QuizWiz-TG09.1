@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
+import { useParams } from "react-router-dom";
 import GoogleMap from "../components/GoogleMap";
 import axios from "axios";
 
@@ -33,6 +34,9 @@ axiosInstance.interceptors.response.use(
 
 export default function CreateQuizPage() {
   const { token } = useAuth();
+  const { id } = useParams(); // Ako postoji ID, onda je edit mode
+  const isEditMode = Boolean(id);
+  
   const [selectedLocation, setSelectedLocation] = useState<{
     lat: number;
     lng: number;
@@ -55,8 +59,54 @@ export default function CreateQuizPage() {
   const [numberOfRounds, setNumberOfRounds] = useState<number>(1);
   const [maxPoints, setMaxPoints] = useState<number>(100);
   const [locationId, setLocationId] = useState<number | null>(null);
+  const [status, setStatus] = useState<string>("open");
 
   const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+
+  // Load quiz data if in edit mode
+  useEffect(() => {
+    if (!isEditMode || !id) return;
+
+    const loadQuiz = async () => {
+      try {
+        setLoading(true);
+        const quizRes = await axiosInstance.get(`/api/quizzes/${id}`);
+        const quiz = quizRes.data;
+        
+        setQuizName(quiz.quiz_name || "");
+        setQuizTheme(quiz.quiz_theme || "");
+        setApplicationType(quiz.application_type || "team");
+        setQuizDate(quiz.date || "");
+        setQuizTime(typeof quiz.time === 'string' ? quiz.time.slice(0, 5) : "");
+        setDescription(quiz.description || "");
+        setNumberOfRounds(quiz.number_of_rounds || 1);
+        setMaxPoints(quiz.max_points || 100);
+        setLocationId(quiz.location_id || null);
+        setStatus(quiz.status || "open");
+
+        // Load location if exists
+        if (quiz.location_id) {
+          try {
+            const locRes = await axiosInstance.get(`/api/locations/${quiz.location_id}`);
+            const loc = locRes.data;
+            setLocationName(loc.location_name || "");
+            setAddress(loc.address || "");
+            setCity(loc.city || "");
+            setCapacity(loc.capacity || 0);
+          } catch (locErr) {
+            console.error('Location load error:', locErr);
+          }
+        }
+      } catch (err) {
+        console.error('Quiz load error:', err);
+        setError('Greška pri učitavanju kviza');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadQuiz();
+  }, [id, isEditMode]);
 
   if (!apiKey) {
     return <div>Greška: Google Maps API ključ nije postavljen.</div>; // Fallback ako ključ nedostaje
@@ -71,11 +121,26 @@ export default function CreateQuizPage() {
     setIsFetchingAddress(true);
     try {
       const response = await fetch(
-        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${apiKey}`
+        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${apiKey}&language=hr&region=hr`
       );
       const data = await response.json();
       if (data.results && data.results.length > 0) {
-        setAddress(data.results[0].formatted_address);
+        // Pronađi najbolju adresu - preferira street_address tip
+        const streetAddress = data.results.find((r: any) => r.types.includes('street_address'));
+        const result = streetAddress || data.results[0];
+        
+        // Koristi formatted_address ali očisti duplicirane gradove
+        let formattedAddr = result.formatted_address;
+        
+        // Automatski popuni grad iz address_components
+        const cityComponent = result.address_components?.find((comp: any) => 
+          comp.types.includes('locality') || comp.types.includes('postal_town')
+        );
+        if (cityComponent && !city) {
+          setCity(cityComponent.long_name);
+        }
+        
+        setAddress(formattedAddr);
       } else {
         setAddress("Adresa nije pronađena");
       }
@@ -109,6 +174,43 @@ export default function CreateQuizPage() {
     setError(null);
 
     try {
+      if (isEditMode && id) {
+        // EDIT MODE - update existing quiz
+        console.log("Ažuriram kviz ID:", id);
+        
+        const updateData: any = {
+          quiz_name: quizName,
+          quiz_theme: quizTheme,
+          application_type: applicationType,
+          date: quizDate,
+          time: quizTime,
+          description: description,
+          number_of_rounds: numberOfRounds,
+          max_points: maxPoints,
+          status: status,
+        };
+
+        // Only include location_id if we have one
+        if (locationId) {
+          updateData.location_id = locationId;
+        }
+
+        console.log("Šaljem update podatke:", updateData);
+
+        const quizResponse = await axiosInstance.patch(
+          `/api/organizer/quizzes/${id}`,
+          updateData
+        );
+
+        console.log("Kviz ažuriran:", quizResponse.data);
+        alert("Kviz je uspješno ažuriran!");
+        
+        // Redirect to my quizzes
+        window.location.href = "/my-quizzes";
+        return;
+      }
+
+      // CREATE MODE - existing logic
       // First, create location if needed
       let finalLocationId = locationId;
       if (!locationId) {
@@ -204,7 +306,7 @@ export default function CreateQuizPage() {
 
   return (
     <div className="container mt-4">
-      <h2>Kreiraj novi kviz</h2>
+      <h2>{isEditMode ? "Uredi kviz" : "Kreiraj novi kviz"}</h2>
       
       {error && <div className="alert alert-danger">{error}</div>}
 
@@ -298,6 +400,21 @@ export default function CreateQuizPage() {
               min="1"
             />
           </div>
+
+          {isEditMode && (
+            <div className="mb-3">
+              <label>Status</label>
+              <select
+                className="form-select"
+                value={status}
+                onChange={(e) => setStatus(e.target.value)}
+              >
+                <option value="open">Otvoren</option>
+                <option value="closed">Zatvoren</option>
+                <option value="in_progress">U tijeku</option>
+              </select>
+            </div>
+          )}
         </div>
 
         <div className="col-md-6">
@@ -308,12 +425,17 @@ export default function CreateQuizPage() {
             <GoogleMap 
               apiKey={apiKey}
               center={selectedLocation || { lat: 45.8150, lng: 15.9819 }}
-              zoom={12}
+              zoom={selectedLocation ? 15 : 12}
               onLocationSelect={handleLocationSelect}
+              marker={selectedLocation ? {
+                lat: selectedLocation.lat,
+                lng: selectedLocation.lng,
+                title: "Odabrana lokacija"
+              } : undefined}
             />
             {selectedLocation && (
-              <p className="mt-2 small text-muted">
-                Odabrana lokacija: {selectedLocation.lat.toFixed(6)}, {selectedLocation.lng.toFixed(6)}
+              <p className="mt-2 small text-success">
+                ✓ Odabrana lokacija: {selectedLocation.lat.toFixed(6)}, {selectedLocation.lng.toFixed(6)}
               </p>
             )}
             {isFetchingAddress ? (
@@ -365,7 +487,10 @@ export default function CreateQuizPage() {
           onClick={handleSubmit}
           disabled={loading}
         >
-          {loading ? "Kreiram..." : "Kreiraj kviz i lokaciju"}
+          {loading 
+            ? (isEditMode ? "Ažuriram..." : "Kreiram...") 
+            : (isEditMode ? "Ažuriraj kviz" : "Kreiraj kviz i lokaciju")
+          }
         </button>
         <button
           className="btn btn-secondary"
