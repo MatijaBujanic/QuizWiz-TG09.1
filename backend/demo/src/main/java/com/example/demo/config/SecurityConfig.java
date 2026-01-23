@@ -31,9 +31,56 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/home", "/health", "/login/**", "/oauth2/**",
-                                "/api/users/role", "/v3/api-docs/**", "/swagger-ui/**", "/api/admin/**",  "/api/quizzes/**")
-                        .permitAll()
+                        // Public endpoints (no authentication required)
+                        .requestMatchers(
+                                "/",
+                                "/home",
+                                "/health",
+                                "/login/**",
+                                "/oauth2/**",
+
+                                // Quiz browsing - public
+                                "/api/quizzes",
+                                "/api/quizzes/ping",
+                                "/api/quizzes/{id}",
+
+                                // Locations - public (for browsing)
+                                "/api/locations",
+                                "/api/locations/{id}",
+
+                                // User role check - public
+                                "/api/users/role",
+                                "/api/users/test",
+
+                                // Documentation
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+
+                                // Admin endpoints - should be admin only, handled by method security
+                                "/api/admin/**"
+                        ).permitAll()
+
+                        // Team endpoints - require authentication
+                        .requestMatchers(
+                                "/api/teams/**"
+                        ).authenticated()
+
+                        // Quiz rating - require authentication
+                        .requestMatchers(
+                                "/api/quizzes/{quizId}/rate",
+                                "/api/quizzes/{quizId}/rating"
+                        ).authenticated()
+
+                        // Organizer endpoints - require authentication + organizer role
+                        .requestMatchers(
+                                "/api/organizer/**"
+                        ).authenticated()
+
+                        // User profile endpoints - require authentication
+                        .requestMatchers(
+                                "/users/me/**"
+                        ).authenticated()
+
                         .anyRequest().authenticated())
                 .oauth2Login(oauth -> oauth
                         .successHandler(oauth2LoginSuccessHandler))
