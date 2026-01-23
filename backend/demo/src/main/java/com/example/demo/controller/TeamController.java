@@ -35,7 +35,7 @@ public class TeamController {
     @PostMapping
     public ResponseEntity<?> createTeam(
             @RequestBody CreateTeamRequest request,
-            @RequestParam(required = false) Integer userId // obavezno iz query parametra
+            @RequestParam(required = false) Integer createdBy // mijenjamo userId u createdBy
     ) {
         try {
             if (request.getQuizId() == null) {
@@ -45,14 +45,14 @@ public class TeamController {
                 ));
             }
 
-            if (userId == null) {
+            if (createdBy == null) {
                 return ResponseEntity.badRequest().body(Map.of(
                         "success", false,
-                        "message", "User ID is required"
+                        "message", "User ID (createdBy) is required"
                 ));
             }
 
-            TeamResponse team = teamService.createTeam(request, userId);
+            TeamResponse team = teamService.createTeam(request, createdBy);
 
             return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
                     "success", true,
