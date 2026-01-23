@@ -70,7 +70,7 @@ export default function MyTeamPage() {
   const axiosInstance = useMemo(
     () =>
       axios.create({
-        baseURL: "http://quizwiz-tg091-production-504c.up.railway.app",
+        baseURL: "https://quizwiz-tg091-production-504c.up.railway.app",
         withCredentials: true,
         headers: token ? { Authorization: `Bearer ${token}` } : undefined,
       }),
@@ -222,11 +222,11 @@ export default function MyTeamPage() {
         prev.map((t) =>
           t.team_id === teamId
             ? {
-                ...t,
-                team_name,
-                members,
-                number_of_members: members.length,
-              }
+              ...t,
+              team_name,
+              members,
+              number_of_members: members.length,
+            }
             : t,
         ),
       );
@@ -236,8 +236,8 @@ export default function MyTeamPage() {
       console.error(e);
       setError(
         e?.response?.data?.message ||
-          e?.message ||
-          "Greška pri ažuriranju tima",
+        e?.message ||
+        "Greška pri ažuriranju tima",
       );
     } finally {
       setBusyId(null);
@@ -328,8 +328,8 @@ export default function MyTeamPage() {
                   {t.quiz_id && (
                     <div className="mt-2">
                       <div className="text-muted small">Prijavljen na kviz</div>
-                      <Link 
-                        to={`/quizzes/${t.quiz_id}`} 
+                      <Link
+                        to={`/quizzes/${t.quiz_id}`}
                         className="text-decoration-none fw-semibold"
                       >
                         Quiz #{t.quiz_id} →

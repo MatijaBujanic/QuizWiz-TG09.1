@@ -57,7 +57,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     try {
       const response = await fetch(
-        `http://quizwiz-tg091-production-504c.up.railway.app/api/users/role?email=${encodeURIComponent(
+        `https://quizwiz-tg091-production-504c.up.railway.app/api/users/role?email=${encodeURIComponent(
           email
         )}`
       );

@@ -65,7 +65,7 @@ export default function RegisterPage() {
   const axiosInstance = useMemo(
     () =>
       axios.create({
-        baseURL: "http://quizwiz-tg091-production-504c.up.railway.app",
+        baseURL: "https://quizwiz-tg091-production-504c.up.railway.app",
         withCredentials: true,
       }),
     [],

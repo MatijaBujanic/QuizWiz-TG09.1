@@ -60,7 +60,7 @@ const MyQuizzesPage: React.FC = () => {
   const axiosInstance = useMemo(
     () =>
       axios.create({
-        baseURL: "http://quizwiz-tg091-production-504c.up.railway.app",
+        baseURL: "https://quizwiz-tg091-production-504c.up.railway.app",
         withCredentials: true,
         headers: token ? { Authorization: `Bearer ${token}` } : undefined,
       }),
@@ -183,7 +183,7 @@ const MyQuizzesPage: React.FC = () => {
     try {
       await axiosInstance.delete(`/api/organizer/quizzes/${quizId}`);
       alert('Kviz je uspješno obrisan!');
-      
+
       // Reload quizzes to get fresh data
       if (me?.user_id) {
         await reloadQuizzes(me.user_id);
@@ -204,7 +204,7 @@ const MyQuizzesPage: React.FC = () => {
       const res = await axiosInstance.get(`/api/teams?quizId=${quiz.quiz_id}`);
       const teamsData = res.data.teams || [];
       setTeams(teamsData);
-      
+
       const initialPoints: Record<number, number> = {};
       teamsData.forEach((team: Team) => {
         initialPoints[team.team_id] = team.points || 0;
@@ -272,32 +272,31 @@ const MyQuizzesPage: React.FC = () => {
                     <p className="mb-1"><strong>Rundi:</strong> {quiz.number_of_rounds}</p>
                     <p className="mb-1"><strong>Max bodovi:</strong> {quiz.max_points}</p>
                     <p className="mb-1">
-                      <strong>Status:</strong> 
-                      <span className={`badge ms-2 ${
-                        quiz.status === 'open' ? 'bg-success' :
-                        quiz.status === 'closeds' ? 'bg-danger' :
-                        'bg-warning'
-                      }`}>
-                        {quiz.status === 'open' ? 'Otvoren' : 
-                         quiz.status === 'closed' ? 'Zatvoren' : quiz.status}
+                      <strong>Status:</strong>
+                      <span className={`badge ms-2 ${quiz.status === 'open' ? 'bg-success' :
+                          quiz.status === 'closeds' ? 'bg-danger' :
+                            'bg-warning'
+                        }`}>
+                        {quiz.status === 'open' ? 'Otvoren' :
+                          quiz.status === 'closed' ? 'Zatvoren' : quiz.status}
                       </span>
                     </p>
                   </div>
                 </div>
                 <div className="card-footer bg-white">
-                  <button 
+                  <button
                     className="btn btn-sm btn-primary me-2"
                     onClick={() => handleEdit(quiz.quiz_id)}
                   >
                     Uredi
                   </button>
-                  <button 
+                  <button
                     className="btn btn-sm btn-success me-2"
                     onClick={() => handleManageResults(quiz)}
                   >
                     Rezultati
                   </button>
-                  <button 
+                  <button
                     className="btn btn-sm btn-danger"
                     onClick={() => handleDelete(quiz.quiz_id)}
                   >
@@ -360,16 +359,16 @@ const MyQuizzesPage: React.FC = () => {
                 )}
               </div>
               <div className="modal-footer">
-                <button 
-                  type="button" 
-                  className="btn btn-secondary" 
+                <button
+                  type="button"
+                  className="btn btn-secondary"
                   onClick={handleCloseModal}
                   disabled={submittingResults}
                 >
                   Zatvori
                 </button>
-                <button 
-                  type="button" 
+                <button
+                  type="button"
                   className="btn btn-primary"
                   onClick={handleSubmitResults}
                   disabled={submittingResults || teams.length === 0}
