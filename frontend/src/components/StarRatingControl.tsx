@@ -1,15 +1,31 @@
 import { useEffect, useMemo, useState } from "react";
-import api from "../api/api";
+import axios from "axios";
 import { useAuth } from "../context/AuthContext";
+import { getEmailFromToken } from "../utils/authMapper"; // prilagodi putanju ako treba
 
-type Props = {
+type Me = {
+    user_id: number;
+    email: string;
+    username: string;
+    role: string;
+};
+
+type RoleLookupResponse = {
+    email: string;
+    role: string;
+    username: string;
+    userId: number;
+};
+
+type StarRatingControlProps = {
     quizId: number;
     onChanged?: () => void;
 };
 
-const StarRatingControl = ({ quizId, onChanged }: Props) => {
+const StarRatingControl = ({ quizId, onChanged }: StarRatingControlProps) => {
     const { token, isAuthenticated } = useAuth();
 
+    const [me, setMe] = useState<Me | null>(null);
     const [myRating, setMyRating] = useState<number>(0);
     const [hover, setHover] = useState<number>(0);
     const [loading, setLoading] = useState(true);
@@ -18,68 +34,110 @@ const StarRatingControl = ({ quizId, onChanged }: Props) => {
 
     const stars = useMemo(() => [1, 2, 3, 4, 5], []);
 
-    const authHeaders = useMemo(() => {
-        return token ? { Authorization: `Bearer ${token}` } : {};
-    }, [token]);
+    // axios instance za poziv user role (s Authorization headerom)
+    const axiosInstance = useMemo(
+        () =>
+            axios.create({
+                baseURL: "https://quizwiz-tg091-production-504c.up.railway.app",
+                withCredentials: true,
+                headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+            }),
+        [token],
+    );
 
+    // 1) Load user info (me) from /api/users/role using email extracted from token
+    useEffect(() => {
+        const loadMe = async () => {
+            if (!isAuthenticated || !token) {
+                setMe(null);
+                return;
+            }
+
+            const email = getEmailFromToken(token);
+            if (!email) {
+                console.warn("Could not extract email from JWT token.");
+                setMe(null);
+                return;
+            }
+
+            try {
+                const res = await axiosInstance.get<RoleLookupResponse>("/api/users/role", {
+                    params: { email },
+                });
+
+                const dto = res.data;
+                const mapped: Me = {
+                    user_id: dto.userId,
+                    email: dto.email,
+                    username: dto.username,
+                    role: dto.role,
+                };
+                setMe(mapped);
+            } catch (err) {
+                console.error("Failed to load user via /api/users/role:", err);
+                setMe(null);
+            }
+        };
+
+        loadMe();
+    }, [axiosInstance, isAuthenticated, token]);
+
+    // 2) Load my rating
     useEffect(() => {
         const loadMyRating = async () => {
+            if (!me?.user_id) {
+                setMyRating(0);
+                setLoading(false);
+                return;
+            }
+
             setLoading(true);
             setError(null);
 
             try {
-                const res = await api.get(`/api/quizzes/${quizId}/rating`, {
-                    headers: authHeaders,
+                const res = await axios.get(`/api/quizzes/${quizId}/rating`, {
+                    baseURL: "https://quizwiz-tg091-production-504c.up.railway.app",
+                    params: { userId: me.user_id },
                 });
 
                 const data = res.data;
-
                 let value = 0;
                 if (typeof data === "number") value = data;
                 else if (data && typeof data.rating === "number") value = data.rating;
-                else if (data && typeof data.myRating === "number")
-                    value = data.myRating;
-                else if (data && typeof data.userRating === "number")
-                    value = data.userRating;
+                else if (data && typeof data.myRating === "number") value = data.myRating;
+                else if (data && typeof data.userRating === "number") value = data.userRating;
 
                 value = Math.max(0, Math.min(5, Math.floor(value)));
                 setMyRating(value);
             } catch (e: any) {
-                console.warn(
-                    "loadMyRating failed:",
-                    e?.response?.status,
-                    e?.response?.data,
-                );
+                console.warn("loadMyRating failed:", e?.response?.status, e?.response?.data);
                 setMyRating(0);
             } finally {
                 setLoading(false);
             }
         };
 
-        // ako nisi prijavljen, nema smisla pozivati
-        if (!isAuthenticated || !token) {
-            setMyRating(0);
-            setLoading(false);
+        loadMyRating();
+    }, [quizId, me?.user_id]);
+
+    // Rate quiz (POST)
+    const rate = async (value: number) => {
+        if (!me?.user_id) {
+            setError("Moraš biti prijavljen da ocijeniš.");
             return;
         }
 
-        loadMyRating();
-    }, [quizId, authHeaders, isAuthenticated, token]);
-
-    const rate = async (value: number) => {
         setBusy(true);
         setError(null);
 
         try {
-            if (!token) {
-                setError("Trebaš biti prijavljen da ocijeniš.");
-                return;
-            }
-
-            await api.post(
+            await axios.post(
                 `/api/quizzes/${quizId}/rate`,
                 { rating: value },
-                { headers: authHeaders },
+                {
+                    baseURL: "https://quizwiz-tg091-production-504c.up.railway.app",
+                    params: { userId: me.user_id },
+                },
             );
 
             setMyRating(value);
@@ -96,28 +154,26 @@ const StarRatingControl = ({ quizId, onChanged }: Props) => {
         }
     };
 
+    // Remove rating (DELETE)
     const removeRating = async () => {
+        if (!me?.user_id) {
+            setError("Moraš biti prijavljen da obrišeš ocjenu.");
+            return;
+        }
+
         setBusy(true);
         setError(null);
 
         try {
-            if (!token) {
-                setError("Trebaš biti prijavljen da obrišeš ocjenu.");
-                return;
-            }
-
-            await api.delete(`/api/quizzes/${quizId}/rate`, {
-                headers: authHeaders,
+            await axios.delete(`/api/quizzes/${quizId}/rate`, {
+                baseURL: "https://quizwiz-tg091-production-504c.up.railway.app",
+                params: { userId: me.user_id },
             });
 
             setMyRating(0);
             onChanged?.();
         } catch (e: any) {
-            console.error(
-                "removeRating failed:",
-                e?.response?.status,
-                e?.response?.data,
-            );
+            console.error("removeRating failed:", e?.response?.status, e?.response?.data);
             setError(
                 typeof e?.response?.data === "string"
                     ? e.response.data
@@ -141,7 +197,7 @@ const StarRatingControl = ({ quizId, onChanged }: Props) => {
                         key={s}
                         type="button"
                         className="btn p-0 border-0"
-                        disabled={loading || busy || !token}
+                        disabled={loading || busy || !me?.user_id}
                         onMouseEnter={() => setHover(s)}
                         onMouseLeave={() => setHover(0)}
                         onClick={() => rate(s)}
@@ -161,7 +217,7 @@ const StarRatingControl = ({ quizId, onChanged }: Props) => {
             <button
                 type="button"
                 className="btn btn-sm btn-outline-danger"
-                disabled={loading || busy || myRating === 0 || !token}
+                disabled={loading || busy || myRating === 0 || !me?.user_id}
                 onClick={removeRating}
                 title="Obriši moju ocjenu"
             >
