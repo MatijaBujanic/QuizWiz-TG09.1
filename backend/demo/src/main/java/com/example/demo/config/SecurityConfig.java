@@ -32,7 +32,7 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/home", "/health", "/login/**", "/oauth2/**",
-                                "/api/users/role", "/v3/api-docs/**", "/swagger-ui/**", "/api/admin/**")
+                                "/api/users/role", "/v3/api-docs/**", "/swagger-ui/**", "/api/admin/**",  "/api/quizzes/**")
                         .permitAll()
                         .anyRequest().authenticated())
                 .oauth2Login(oauth -> oauth
