@@ -34,8 +34,9 @@ public class TeamController {
      */
     @PostMapping
     public ResponseEntity<?> createTeam(
-            @RequestBody CreateTeamRequest request) {
-
+            @RequestBody CreateTeamRequest request,
+            Authentication authentication
+    ) {
         try {
             if (request.getQuizId() == null) {
                 return ResponseEntity.badRequest().body(Map.of(
@@ -45,18 +46,7 @@ public class TeamController {
             }
 
             Long userId = authenticationService.getCurrentUserId();
-
-            if (userId == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
-                        "success", false,
-                        "message", "User not authenticated"
-                ));
-            }
-
-            TeamResponse team = teamService.createTeam(
-                    request,
-                    userId.intValue()
-            );
+            TeamResponse team = teamService.createTeam(request, Math.toIntExact(userId));
 
             return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
                     "success", true,
@@ -69,9 +59,14 @@ public class TeamController {
                     "success", false,
                     "message", e.getMessage()
             ));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().body(Map.of(
+                    "success", false,
+                    "message", "Internal server error"
+            ));
         }
     }
-
 
     /**
      * GET /api/teams?quizId={id}

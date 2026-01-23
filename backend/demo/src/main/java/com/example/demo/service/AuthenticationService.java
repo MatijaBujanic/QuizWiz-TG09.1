@@ -24,14 +24,11 @@ public class AuthenticationService {
      */
     public Optional<Users> getCurrentUser() {
         String email = AuthenticationUtils.getCurrentUserEmail();
-        System.out.println("AUTH EMAIL = " + email);
-
         if (email == null) {
             return Optional.empty();
         }
         return usersService.findByEmail(email);
     }
-
 
     /**
      * Vraća ID trenutnog korisnika (user_id)
