@@ -5,9 +5,9 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      "/users": "http://localhost:8080",
-      "/api": "http://localhost:8080",
-      "/home": "http://localhost:8080",
+      "/users": "quizwiz-tg091-production-504c.up.railway.app",
+      "/api": "quizwiz-tg091-production-504c.up.railway.app",
+      "/home": "quizwiz-tg091-production-504c.up.railway.app",
     },
   },
 });

@@ -6,7 +6,7 @@ import axios from "axios";
 
 // Kreiraj axios instancu s interceptorom
 const axiosInstance = axios.create({
-  baseURL: "http://localhost:8080",
+  baseURL: "http://quizwiz-tg091-production-504c.up.railway.app",
   withCredentials: true, // Šalji cookies (session) automatski
 });
 

@@ -60,7 +60,7 @@ const MyQuizzesPage: React.FC = () => {
   const axiosInstance = useMemo(
     () =>
       axios.create({
-        baseURL: "http://localhost:8080",
+        baseURL: "http://quizwiz-tg091-production-504c.up.railway.app",
         withCredentials: true,
         headers: token ? { Authorization: `Bearer ${token}` } : undefined,
       }),
