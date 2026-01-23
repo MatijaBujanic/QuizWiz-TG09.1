@@ -3,6 +3,7 @@ package com.example.demo.controller;
 import com.example.demo.dto.QuizRatingResponse;
 import com.example.demo.dto.RateQuizRequest;
 import com.example.demo.model.QuizRating;
+import com.example.demo.service.AuthenticationService;
 import com.example.demo.service.QuizRatingService;
 import com.example.demo.service.SupabaseService;
 import org.springframework.http.HttpHeaders;
@@ -26,38 +27,34 @@ public class QuizRatingController {
 
     // Replace this secret with your JWT secret key used for signing tokens
     private static final String JWT_SECRET = "your-jwt-secret-key";
+    private final AuthenticationService authenticationService;
 
-    public QuizRatingController(QuizRatingService ratingService, SupabaseService supabaseService) {
+    public QuizRatingController(QuizRatingService ratingService, SupabaseService supabaseService, AuthenticationService authenticationService) {
         this.ratingService = ratingService;
         this.supabaseService = supabaseService;
+        this.authenticationService = authenticationService;
     }
 
     @PostMapping("/{quizId}/rate")
     public ResponseEntity<?> rateQuiz(
             @PathVariable Integer quizId,
-            @RequestBody RateQuizRequest request,
-            @RequestParam(required = false) Integer userId, // For testing
-            @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorizationHeader) {
+            @RequestBody RateQuizRequest request) {
+
         try {
-            Integer actualUserId = userId;
+            Long userId = authenticationService.getCurrentUserId();
 
-            // If no userId param, try to extract from JWT token
-            if (actualUserId == null && authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-                String token = authorizationHeader.substring(7);
-                String email = extractEmailFromJwt(token);
-                if (email != null) {
-                    actualUserId = getUserIdByEmail(email);
-                }
-            }
-
-            if (actualUserId == null) {
-                return ResponseEntity.badRequest().body(Map.of(
+            if (userId == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
                         "success", false,
-                        "message", "User authentication required"
+                        "message", "User not authenticated"
                 ));
             }
 
-            QuizRating rating = ratingService.rateQuiz(quizId, actualUserId, request.getRating());
+            QuizRating rating = ratingService.rateQuiz(
+                    quizId,
+                    userId.intValue(),
+                    request.getRating()
+            );
 
             return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
                     "success", true,
@@ -72,12 +69,13 @@ public class QuizRatingController {
             ));
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
+            return ResponseEntity.internalServerError().body(Map.of(
                     "success", false,
-                    "message", "Error rating quiz: " + e.getMessage()
+                    "message", "Error rating quiz"
             ));
         }
     }
+
 
     @GetMapping("/{quizId}/rating")
     public ResponseEntity<?> getQuizRating(
