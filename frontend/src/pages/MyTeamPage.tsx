@@ -175,9 +175,7 @@ export default function MyTeamPage() {
     setError(null);
 
     try {
-      await axiosInstance.delete(`/api/teams/${teamId}`, {
-        params: { userId: me.user_id },
-      });
+      await axiosInstance.delete(`/api/teams/${teamId}`);
 
       // UX: odmah makni iz liste (optimistic), pa eventualno reload
       setTeams((prev) => prev.filter((x) => x.team_id !== teamId));
