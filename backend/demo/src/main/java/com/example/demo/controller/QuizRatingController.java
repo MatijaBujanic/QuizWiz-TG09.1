@@ -4,12 +4,15 @@ import com.example.demo.dto.QuizRatingResponse;
 import com.example.demo.dto.RateQuizRequest;
 import com.example.demo.model.QuizRating;
 import com.example.demo.service.QuizRatingService;
-import com.example.demo.service.SupabaseService; // Pretpostavljam da koristiš ovaj servis
+import com.example.demo.service.SupabaseService;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.JwtException;
 
 import java.util.List;
 import java.util.Map;
@@ -21,24 +24,31 @@ public class QuizRatingController {
     private final QuizRatingService ratingService;
     private final SupabaseService supabaseService;
 
+    // Replace this secret with your JWT secret key used for signing tokens
+    private static final String JWT_SECRET = "your-jwt-secret-key";
+
     public QuizRatingController(QuizRatingService ratingService, SupabaseService supabaseService) {
         this.ratingService = ratingService;
         this.supabaseService = supabaseService;
     }
 
-    /**
-     * POST /api/quizzes/{quizId}/rate
-     * Korisnik ocjenjuje kviz (1-5 zvjezdica)
-     */
     @PostMapping("/{quizId}/rate")
     public ResponseEntity<?> rateQuiz(
             @PathVariable Integer quizId,
             @RequestBody RateQuizRequest request,
-            @RequestParam(required = false) Integer userId, // Za testiranje
-            Authentication authentication) {
+            @RequestParam(required = false) Integer userId, // For testing
+            @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorizationHeader) {
         try {
-            // Dohvati userId iz auth ili parametra
-            Integer actualUserId = getUserIdFromAuth(authentication, userId);
+            Integer actualUserId = userId;
+
+            // If no userId param, try to extract from JWT token
+            if (actualUserId == null && authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+                String token = authorizationHeader.substring(7);
+                String email = extractEmailFromJwt(token);
+                if (email != null) {
+                    actualUserId = getUserIdByEmail(email);
+                }
+            }
 
             if (actualUserId == null) {
                 return ResponseEntity.badRequest().body(Map.of(
@@ -69,17 +79,22 @@ public class QuizRatingController {
         }
     }
 
-    /**
-     * GET /api/quizzes/{quizId}/rating
-     * Dohvaća prosječnu ocjenu kviza
-     */
     @GetMapping("/{quizId}/rating")
     public ResponseEntity<?> getQuizRating(
             @PathVariable Integer quizId,
             @RequestParam(required = false) Integer userId,
-            Authentication authentication) {
+            @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorizationHeader) {
         try {
-            Integer actualUserId = getUserIdFromAuth(authentication, userId);
+            Integer actualUserId = userId;
+
+            if (actualUserId == null && authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+                String token = authorizationHeader.substring(7);
+                String email = extractEmailFromJwt(token);
+                if (email != null) {
+                    actualUserId = getUserIdByEmail(email);
+                }
+            }
+
             QuizRatingResponse rating = ratingService.getQuizRating(quizId, actualUserId);
 
             return ResponseEntity.ok(Map.of(
@@ -96,17 +111,21 @@ public class QuizRatingController {
         }
     }
 
-    /**
-     * DELETE /api/quizzes/{quizId}/rate
-     * Briše ocjenu korisnika
-     */
     @DeleteMapping("/{quizId}/rate")
     public ResponseEntity<?> deleteRating(
             @PathVariable Integer quizId,
             @RequestParam(required = false) Integer userId,
-            Authentication authentication) {
+            @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorizationHeader) {
         try {
-            Integer actualUserId = getUserIdFromAuth(authentication, userId);
+            Integer actualUserId = userId;
+
+            if (actualUserId == null && authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+                String token = authorizationHeader.substring(7);
+                String email = extractEmailFromJwt(token);
+                if (email != null) {
+                    actualUserId = getUserIdByEmail(email);
+                }
+            }
 
             if (actualUserId == null) {
                 return ResponseEntity.badRequest().body(Map.of(
@@ -130,30 +149,23 @@ public class QuizRatingController {
         }
     }
 
-    /**
-     * Helper metoda za dohvaćanje userId iz auth ili parametra
-     */
-    private Integer getUserIdFromAuth(Authentication authentication, Integer userId) {
-        if (userId != null) {
-            // Ako je userId poslan kao parametar (za testiranje), koristi ga
-            return userId;
+    private String extractEmailFromJwt(String token) {
+        try {
+            Claims claims = Jwts.parser()
+                    .setSigningKey(JWT_SECRET.getBytes())
+                    .parseClaimsJws(token)
+                    .getBody();
+            return claims.get("email", String.class);
+        } catch (JwtException e) {
+            e.printStackTrace();
+            return null;
         }
+    }
 
-        if (authentication == null || !(authentication.getPrincipal() instanceof OAuth2User)) {
-            return null; // Ili baci iznimku ako želiš strožu kontrolu
-        }
-
-        OAuth2User oauth2User = (OAuth2User) authentication.getPrincipal();
-        String email = oauth2User.getAttribute("email");
-
-        if (email == null) {
-            return null; // Ili baci iznimku
-        }
-
-        // Dohvati user_id iz baze korisnika
+    private Integer getUserIdByEmail(String email) {
         List<Map<String, Object>> users = supabaseService.getAllUsers();
         for (Map<String, Object> user : users) {
-            if (email.equalsIgnoreCase((String) user.get("email"))) {
+            if (email != null && email.equalsIgnoreCase((String) user.get("email"))) {
                 Object userIdObj = user.get("user_id");
                 if (userIdObj instanceof Integer) {
                     return (Integer) userIdObj;
@@ -162,7 +174,6 @@ public class QuizRatingController {
                 }
             }
         }
-
-        return null; // Korisnik nije pronađen
+        return null;
     }
 }
