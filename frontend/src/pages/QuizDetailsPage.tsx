@@ -24,6 +24,15 @@ type RoleLookupResponse = {
   userId: number;
 };
 
+type TeamRanking = {
+  team_id: number;
+  team_name: string;
+  points: number;
+  rank: number | null;
+  number_of_members: number;
+  members: string[];
+};
+
 function statusHr(raw: string) {
   const s = (raw ?? "").toLowerCase();
   if (s === "open") return "Otvoren";
@@ -63,6 +72,8 @@ export default function QuizDetailsPage() {
   const [me, setMe] = useState<Me | null>(null);
   const [applying] = useState(false);
   const [applyError] = useState<string | null>(null);
+  const [ranking, setRanking] = useState<TeamRanking[]>([]);
+  const [rankingLoading, setRankingLoading] = useState(false);
 
   const navigate = useNavigate();
   const { token, isAuthenticated } = useAuth();
@@ -161,6 +172,23 @@ export default function QuizDetailsPage() {
     navigate("/register", { state: { quizId: quiz.quiz_id } });
   };
 
+  const loadRanking = async () => {
+    if (!id) return;
+
+    setRankingLoading(true);
+    try {
+      const res = await axiosInstance.get(`/api/teams/quiz/${id}/ranking`);
+      if (res.data.success) {
+        setRanking(res.data.ranking || []);
+      }
+    } catch (e) {
+      console.error("Failed to load ranking:", e);
+      setRanking([]);
+    } finally {
+      setRankingLoading(false);
+    }
+  };
+
   const reloadQuiz = async () => {
     if (!id) return;
 
@@ -188,6 +216,7 @@ export default function QuizDetailsPage() {
     setQuiz(null);
     setLocation(null);
     reloadQuiz();
+    loadRanking();
   }, [id]);
 
   const ratingDisplay = useMemo(() => {
@@ -386,6 +415,83 @@ export default function QuizDetailsPage() {
                 <p className="text-muted small mt-2 mb-0">
                   Trebate biti prijavljeni da se prijavite na kviz
                 </p>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Rang lista */}
+      <div className="row g-3 mt-3">
+        <div className="col-12">
+          <div className="card shadow-sm border-0">
+            <div className="card-body">
+              <div className="d-flex justify-content-between align-items-center mb-3">
+                <h5 className="mb-0">Rang lista timova</h5>
+                <button
+                  className="btn btn-sm btn-outline-secondary"
+                  onClick={loadRanking}
+                  disabled={rankingLoading}
+                >
+                  {rankingLoading ? "Učitavanje..." : "Osvježi"}
+                </button>
+              </div>
+
+              {rankingLoading && (
+                <div className="text-center py-4">
+                  <div className="spinner-border text-primary" role="status">
+                    <span className="visually-hidden">Učitavanje...</span>
+                  </div>
+                </div>
+              )}
+
+              {!rankingLoading && ranking.length === 0 && (
+                <div className="alert alert-info mb-0">
+                  Trenutno nema prijavljenih timova ili rezultati još nisu uneseni.
+                </div>
+              )}
+
+              {!rankingLoading && ranking.length > 0 && (
+                <div className="table-responsive">
+                  <table className="table table-hover mb-0">
+                    <thead>
+                      <tr>
+                        <th style={{ width: "80px" }}>Rang</th>
+                        <th>Naziv tima</th>
+                        <th style={{ width: "120px" }}>Bodovi</th>
+                        <th style={{ width: "120px" }}>Članovi</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {ranking.map((team) => (
+                        <tr key={team.team_id}>
+                          <td>
+                            <span
+                              className={
+                                team.rank === 1
+                                  ? "badge bg-warning text-dark fs-6"
+                                  : team.rank === 2
+                                    ? "badge bg-secondary fs-6"
+                                    : team.rank === 3
+                                      ? "badge bg-info text-dark fs-6"
+                                      : "badge bg-light text-dark fs-6"
+                              }
+                            >
+                              {team.rank !== null ? `#${team.rank}` : "-"}
+                            </span>
+                          </td>
+                          <td className="fw-semibold">{team.team_name}</td>
+                          <td>
+                            <span className="badge bg-primary">
+                              {team.points} bodova
+                            </span>
+                          </td>
+                          <td>{team.number_of_members}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               )}
             </div>
           </div>

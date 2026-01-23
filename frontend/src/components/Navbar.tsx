@@ -58,12 +58,12 @@ function Navbar() {
               <>
                 <li className="nav-item">
                   <NavLink className="nav-link" to="/create-quiz">
-                    Create Quiz
+                    Kreiraj kviz
                   </NavLink>
                 </li>
                 <li className="nav-item">
                   <NavLink className="nav-link" to="/my-quizzes">
-                    My Quizzes
+                    Moji kvizovi
                   </NavLink>
                 </li>
               </>

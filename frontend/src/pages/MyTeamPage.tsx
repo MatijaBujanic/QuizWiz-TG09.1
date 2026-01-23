@@ -25,6 +25,7 @@ type Team = {
   team_id: number;
   team_name: string;
   number_of_members: number;
+  quiz_id: number;
 };
 
 type TeamsResponse = {
@@ -323,6 +324,18 @@ export default function MyTeamPage() {
                       ID: {t.team_id}
                     </span>
                   </div>
+
+                  {t.quiz_id && (
+                    <div className="mt-2">
+                      <div className="text-muted small">Prijavljen na kviz</div>
+                      <Link 
+                        to={`/quizzes/${t.quiz_id}`} 
+                        className="text-decoration-none fw-semibold"
+                      >
+                        Quiz #{t.quiz_id} →
+                      </Link>
+                    </div>
+                  )}
 
                   <hr />
 

@@ -45,6 +45,11 @@ public class TeamService {
                 supabaseRepository.findAll("team", queryParams, Team.class);
 
         for (Team existing : existingTeams) {
+            // Provjera da li korisnik već ima prijavu na ovaj kviz
+            if (existing.getCreatedBy() != null && existing.getCreatedBy().equals(createdByUserId)) {
+                throw new RuntimeException("Već ste prijavljeni na ovaj kviz");
+            }
+            
             if (existing.getTeamName() != null &&
                     existing.getTeamName().equalsIgnoreCase(request.getTeamName().trim())) {
                 throw new RuntimeException("Već postoji tim s ovim imenom");
