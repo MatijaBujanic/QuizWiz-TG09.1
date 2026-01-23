@@ -175,8 +175,9 @@ export default function MyTeamPage() {
     setError(null);
 
     try {
-      await axiosInstance.delete(`/api/teams/${teamId}`);
-
+        await axiosInstance.delete(`/api/teams/${teamId}`, {
+            params: { createdBy: me.user_id }
+        });
       // UX: odmah makni iz liste (optimistic), pa eventualno reload
       setTeams((prev) => prev.filter((x) => x.team_id !== teamId));
       if (editingTeamId === teamId) cancelEdit();
@@ -209,11 +210,11 @@ export default function MyTeamPage() {
     setError(null);
 
     try {
-      await axiosInstance.patch(
-        `/api/teams/${teamId}`,
-        { team_name, members },
-        { params: { userId: me.user_id } },
-      );
+        await axiosInstance.patch(
+            `/api/teams/${teamId}`,
+            { team_name, members },
+            { params: { createdBy: me.user_id } }
+        );
 
       // update lokalno (bez reloada)
       setTeams((prev) =>

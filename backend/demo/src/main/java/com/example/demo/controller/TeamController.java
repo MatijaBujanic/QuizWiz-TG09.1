@@ -143,11 +143,16 @@ public class TeamController {
     public ResponseEntity<?> updateTeam(
             @PathVariable Integer id,
             @RequestBody UpdateTeamRequest request,
-            Authentication authentication
+            @RequestParam(name = "createdBy", required = false) Integer userId // koristi isto ime parametra kao createTeam
     ) {
+        if (userId == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
+                    "success", false,
+                    "message", "Missing required query parameter: createdBy"
+            ));
+        }
         try {
-            Long userId = authenticationService.getCurrentUserId();
-            TeamResponse team = teamService.updateTeam(id, request, Math.toIntExact(userId));
+            TeamResponse team = teamService.updateTeam(id, request, userId);
 
             return ResponseEntity.ok(Map.of(
                     "success", true,
@@ -170,11 +175,16 @@ public class TeamController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> withdrawApplication(
             @PathVariable Integer id,
-            Authentication authentication
+            @RequestParam(name = "createdBy", required = false) Integer userId
     ) {
+        if (userId == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
+                    "success", false,
+                    "message", "Missing required query parameter: createdBy"
+            ));
+        }
         try {
-            Long userId = authenticationService.getCurrentUserId();
-            teamService.withdrawApplication(id, Math.toIntExact(userId));
+            teamService.withdrawApplication(id, userId);
 
             return ResponseEntity.ok(Map.of(
                     "success", true,
