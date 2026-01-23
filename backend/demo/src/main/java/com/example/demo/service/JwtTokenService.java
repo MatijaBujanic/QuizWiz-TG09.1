@@ -15,7 +15,7 @@ public class JwtTokenService {
     private static final long EXPIRATION_MS = 3600_000; // 1 hour
 
     public JwtTokenService() {
-        this.SECRET =  "QUIZWIZZZZ";
+        this.SECRET =  Base64.getEncoder().encodeToString(Keys.secretKeyFor(SignatureAlgorithm.HS256).getEncoded());;
     }
 
     public String generateToken(String subject) {

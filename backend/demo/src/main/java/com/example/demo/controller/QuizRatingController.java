@@ -25,7 +25,7 @@ public class QuizRatingController {
     private final SupabaseService supabaseService;
 
     // Replace this secret with your JWT secret key used for signing tokens
-    private static final String JWT_SECRET = "QUIZWIZZZZ";
+    private static final String JWT_SECRET = "your-jwt-secret-key";
 
     public QuizRatingController(QuizRatingService ratingService, SupabaseService supabaseService) {
         this.ratingService = ratingService;
