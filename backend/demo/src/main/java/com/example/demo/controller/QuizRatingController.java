@@ -36,28 +36,17 @@ public class QuizRatingController {
     public ResponseEntity<?> rateQuiz(
             @PathVariable Integer quizId,
             @RequestBody RateQuizRequest request,
-            @RequestParam(required = false) Integer userId, // For testing
-            @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorizationHeader) {
+            @RequestParam(required = false) Integer userId  // obavezno iz query parametra
+    ) {
         try {
-            Integer actualUserId = userId;
-
-            // If no userId param, try to extract from JWT token
-            if (actualUserId == null && authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-                String token = authorizationHeader.substring(7);
-                String email = extractEmailFromJwt(token);
-                if (email != null) {
-                    actualUserId = getUserIdByEmail(email);
-                }
-            }
-
-            if (actualUserId == null) {
+            if (userId == null) {
                 return ResponseEntity.badRequest().body(Map.of(
                         "success", false,
-                        "message", "User authentication required"
+                        "message", "User ID is required"
                 ));
             }
 
-            QuizRating rating = ratingService.rateQuiz(quizId, actualUserId, request.getRating());
+            QuizRating rating = ratingService.rateQuiz(quizId, userId, request.getRating());
 
             return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
                     "success", true,
@@ -110,31 +99,20 @@ public class QuizRatingController {
             ));
         }
     }
-
     @DeleteMapping("/{quizId}/rate")
     public ResponseEntity<?> deleteRating(
             @PathVariable Integer quizId,
-            @RequestParam(required = false) Integer userId,
-            @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorizationHeader) {
+            @RequestParam(required = false) Integer userId
+    ) {
         try {
-            Integer actualUserId = userId;
-
-            if (actualUserId == null && authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-                String token = authorizationHeader.substring(7);
-                String email = extractEmailFromJwt(token);
-                if (email != null) {
-                    actualUserId = getUserIdByEmail(email);
-                }
-            }
-
-            if (actualUserId == null) {
+            if (userId == null) {
                 return ResponseEntity.badRequest().body(Map.of(
                         "success", false,
-                        "message", "User authentication required"
+                        "message", "User ID is required"
                 ));
             }
 
-            ratingService.deleteRating(quizId, actualUserId);
+            ratingService.deleteRating(quizId, userId);
 
             return ResponseEntity.ok(Map.of(
                     "success", true,
@@ -148,6 +126,7 @@ public class QuizRatingController {
             ));
         }
     }
+
 
     private String extractEmailFromJwt(String token) {
         try {
