@@ -73,7 +73,7 @@ export default function AboutPage() {
           <div className="col-md-4 col-sm-6">
             <div className="card text-center h-100 shadow-sm">
               <div className="card-body">
-                <h5 className="card-title">Mihael Vrančić</h5>
+                <h5 className="card-title">Mihael Vranić</h5>
               </div>
             </div>
           </div>

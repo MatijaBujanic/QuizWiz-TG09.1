@@ -18,8 +18,8 @@ export default function HomePage() {
                 <Link to="/quizzes" className="btn btn-primary btn-lg">
                   Pregledaj kvizove
                 </Link>
-                <Link to="/my-team" className="btn btn-outline-light btn-lg">
-                  Napravi svoj tim
+                <Link to="/my-teams" className="btn btn-outline-light btn-lg">
+                  Pregledaj svoje timove
                 </Link>
               </div>
             </div>

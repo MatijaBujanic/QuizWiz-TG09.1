@@ -175,9 +175,9 @@ export default function MyTeamPage() {
     setError(null);
 
     try {
-        await axiosInstance.delete(`/api/teams/${teamId}`, {
-            params: { createdBy: me.user_id }
-        });
+      await axiosInstance.delete(`/api/teams/${teamId}`, {
+        params: { createdBy: me.user_id },
+      });
       // UX: odmah makni iz liste (optimistic), pa eventualno reload
       setTeams((prev) => prev.filter((x) => x.team_id !== teamId));
       if (editingTeamId === teamId) cancelEdit();
@@ -210,22 +210,22 @@ export default function MyTeamPage() {
     setError(null);
 
     try {
-        await axiosInstance.patch(
-            `/api/teams/${teamId}`,
-            { team_name, members },
-            { params: { createdBy: me.user_id } }
-        );
+      await axiosInstance.patch(
+        `/api/teams/${teamId}`,
+        { team_name, members },
+        { params: { createdBy: me.user_id } },
+      );
 
       // update lokalno (bez reloada)
       setTeams((prev) =>
         prev.map((t) =>
           t.team_id === teamId
             ? {
-              ...t,
-              team_name,
-              members,
-              number_of_members: members.length,
-            }
+                ...t,
+                team_name,
+                members,
+                number_of_members: members.length,
+              }
             : t,
         ),
       );
@@ -235,8 +235,8 @@ export default function MyTeamPage() {
       console.error(e);
       setError(
         e?.response?.data?.message ||
-        e?.message ||
-        "Greška pri ažuriranju tima",
+          e?.message ||
+          "Greška pri ažuriranju tima",
       );
     } finally {
       setBusyId(null);
@@ -291,7 +291,9 @@ export default function MyTeamPage() {
       {error && <div className="alert alert-danger">{error}</div>}
 
       {!loading && !error && teams.length === 0 && (
-        <div className="alert alert-secondary mb-0">Nemaš nijedan tim.</div>
+        <div className="alert alert-secondary mb-0">
+          Niste u timu. Kad se priključite kvizu možete napraviti novi tim!
+        </div>
       )}
 
       <div className="row g-3">
