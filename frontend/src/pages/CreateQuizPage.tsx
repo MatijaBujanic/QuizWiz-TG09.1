@@ -6,7 +6,7 @@ import axios from "axios";
 
 // Kreiraj axios instancu s interceptorom
 const axiosInstance = axios.create({
-  baseURL: "http://quizwiz-tg091-production-504c.up.railway.app",
+  baseURL: "https://quizwiz-tg091-production-504c.up.railway.app",
   withCredentials: true, // Šalji cookies (session) automatski
 });
 
@@ -36,7 +36,7 @@ export default function CreateQuizPage() {
   const { token } = useAuth();
   const { id } = useParams(); // Ako postoji ID, onda je edit mode
   const isEditMode = Boolean(id);
-  
+
   const [selectedLocation, setSelectedLocation] = useState<{
     lat: number;
     lng: number;
@@ -72,7 +72,7 @@ export default function CreateQuizPage() {
         setLoading(true);
         const quizRes = await axiosInstance.get(`/api/quizzes/${id}`);
         const quiz = quizRes.data;
-        
+
         setQuizName(quiz.quiz_name || "");
         setQuizTheme(quiz.quiz_theme || "");
         setApplicationType(quiz.application_type || "team");
@@ -128,18 +128,18 @@ export default function CreateQuizPage() {
         // Pronađi najbolju adresu - preferira street_address tip
         const streetAddress = data.results.find((r: any) => r.types.includes('street_address'));
         const result = streetAddress || data.results[0];
-        
+
         // Koristi formatted_address ali očisti duplicirane gradove
         let formattedAddr = result.formatted_address;
-        
+
         // Automatski popuni grad iz address_components
-        const cityComponent = result.address_components?.find((comp: any) => 
+        const cityComponent = result.address_components?.find((comp: any) =>
           comp.types.includes('locality') || comp.types.includes('postal_town')
         );
         if (cityComponent && !city) {
           setCity(cityComponent.long_name);
         }
-        
+
         setAddress(formattedAddr);
       } else {
         setAddress("Adresa nije pronađena");
@@ -177,7 +177,7 @@ export default function CreateQuizPage() {
       if (isEditMode && id) {
         // EDIT MODE - update existing quiz
         console.log("Ažuriram kviz ID:", id);
-        
+
         const updateData: any = {
           quiz_name: quizName,
           quiz_theme: quizTheme,
@@ -204,7 +204,7 @@ export default function CreateQuizPage() {
 
         console.log("Kviz ažuriran:", quizResponse.data);
         alert("Kviz je uspješno ažuriran!");
-        
+
         // Redirect to my quizzes
         window.location.href = "/my-quizzes";
         return;
@@ -215,7 +215,7 @@ export default function CreateQuizPage() {
       let finalLocationId = locationId;
       if (!locationId) {
         console.log("Kreiram lokaciju...");
-        
+
         const locationResponse = await axiosInstance.post(
           "/api/organizer/locations",
           {
@@ -227,9 +227,9 @@ export default function CreateQuizPage() {
         );
         console.log("Location response:", locationResponse.data);
         // Pokušaj dohvatiti locationId iz različitih mogućih ključeva
-        finalLocationId = locationResponse.data?.location_id || 
-                          locationResponse.data?.locationId || 
-                          locationResponse.data?.id;
+        finalLocationId = locationResponse.data?.location_id ||
+          locationResponse.data?.locationId ||
+          locationResponse.data?.id;
         setLocationId(finalLocationId);
         console.log("Lokacija kreirana s ID:", finalLocationId);
       }
@@ -253,7 +253,7 @@ export default function CreateQuizPage() {
 
       console.log("Kviz response:", quizResponse.data);
       console.log("Kviz uspješno kreiran:", quizResponse.data);
-      
+
       // Spremi lokalno za fallback u MyQuizzes
       try {
         const localQuizzesRaw = localStorage.getItem('local_created_quizzes');
@@ -266,9 +266,9 @@ export default function CreateQuizPage() {
       } catch (storageErr) {
         console.warn('Could not save quiz to localStorage', storageErr);
       }
-      
+
       alert("Kviz i lokacija su uspješno kreirani!");
-      
+
       // Reset form
       setQuizName("");
       setQuizTheme("");
@@ -287,7 +287,7 @@ export default function CreateQuizPage() {
       console.error("Error message:", err.message);
       console.error("Response status:", err.response?.status);
       console.error("Response data:", err.response?.data);
-      
+
       if (err.message?.includes("Sesija") || err.message?.includes("login")) {
         setError("Molimo prijavite se ponovno preko OAuth2 (GitHub/Google)");
       } else {
@@ -307,13 +307,13 @@ export default function CreateQuizPage() {
   return (
     <div className="container mt-4">
       <h2>{isEditMode ? "Uredi kviz" : "Kreiraj novi kviz"}</h2>
-      
+
       {error && <div className="alert alert-danger">{error}</div>}
 
       <div className="row">
         <div className="col-md-6">
           <h4>Podaci o kvizu</h4>
-          
+
           <div className="mb-3">
             <label>Naziv kviza*</label>
             <input
@@ -422,7 +422,7 @@ export default function CreateQuizPage() {
 
           <div className="mb-3">
             <label>Odaberi lokaciju (klikni na mapu)*</label>
-            <GoogleMap 
+            <GoogleMap
               apiKey={apiKey}
               center={selectedLocation || { lat: 45.8150, lng: 15.9819 }}
               zoom={selectedLocation ? 15 : 12}
@@ -487,8 +487,8 @@ export default function CreateQuizPage() {
           onClick={handleSubmit}
           disabled={loading}
         >
-          {loading 
-            ? (isEditMode ? "Ažuriram..." : "Kreiram...") 
+          {loading
+            ? (isEditMode ? "Ažuriram..." : "Kreiram...")
             : (isEditMode ? "Ažuriraj kviz" : "Kreiraj kviz i lokaciju")
           }
         </button>
