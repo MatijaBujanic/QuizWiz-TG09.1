@@ -5,10 +5,6 @@ export default axios.create({
   withCredentials: true,
   headers: {
     Accept: "application/json",
-  },
-
-  headers: {
-    "Accept": "application/json",
     "Content-Type": "application/json",
     "Access-Control-Allow-Credentials": "true",
   },
